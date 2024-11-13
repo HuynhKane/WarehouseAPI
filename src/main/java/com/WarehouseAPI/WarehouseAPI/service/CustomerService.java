@@ -5,7 +5,6 @@ import com.WarehouseAPI.WarehouseAPI.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +32,7 @@ public class CustomerService implements ICustomerService{
             customer.setCustomerName(updatedCustomer.getCustomerName());
             customer.setAddress(updatedCustomer.getAddress());
             customerRepository.save(customer);
-            return "udpate, ok";
+            return "update, ok";
         }
         return "update failed";
     }
