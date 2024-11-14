@@ -1,7 +1,5 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-
-import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.model.User;
 import com.WarehouseAPI.WarehouseAPI.service.IUserService;
 import org.springframework.web.bind.annotation.*;
@@ -11,38 +9,37 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    IUserService iUserService;
 
-    public UserController(IUserService iUserService){
-        this.iUserService = iUserService;
-
+    private final IUserService userService;
+    public UserController(IUserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping("/all")
-    public List<User> getAllUserDetails(){
-        return iUserService.getAllUser();
+    @GetMapping
+    public List<User> getAllUserDetails() {
+        return userService.getAllUser();
     }
 
-    @GetMapping("/{_id}/get")
-    public User getUserDetails(@PathVariable("_id") String _id){
-        return iUserService.getUser(_id);
+    @GetMapping("/{id}")
+    public User getUserDetails(@PathVariable String id) {
+        return userService.getUser(id);
     }
 
-    @PostMapping("/add")
-    public String addUserDetails(@RequestBody User user){
-        iUserService.addUser(user);
-        return "Product was created successfully";
+    @PostMapping
+    public String addUserDetails(@RequestBody User user) {
+        userService.addUser(user);
+        return "User added successfully";
     }
 
-    @PutMapping("/{_id}/update")
-    public String updateUserDetails(@PathVariable("_id") String _id, @RequestBody User updated){
-        iUserService.updateUser(_id, updated);
-        return "Product was updated successfully";
+    @PutMapping("/{id}")
+    public String updateUserDetails(@PathVariable String id, @RequestBody User updated) {
+        userService.updateUser(id, updated);
+        return "User updated successfully";
     }
 
-    @DeleteMapping("/{_id}/delete")
-    public String deleteUserDetails(@PathVariable("_id") String _id){
-        iUserService.deleteUser(_id);
-        return "This was deleted successfully";
+    @DeleteMapping("/{id}")
+    public String deleteUserDetails(@PathVariable String id) {
+        userService.deleteUser(id);
+        return "User deleted successfully";
     }
 }

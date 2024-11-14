@@ -1,6 +1,5 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.service.IStorageLocService;
 import org.springframework.web.bind.annotation.*;
@@ -10,36 +9,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/storage-location")
 public class StorageLocationController {
-    IStorageLocService iStorageLocService;
 
-    public StorageLocationController(IStorageLocService iStorageLocService){
-        this.iStorageLocService = iStorageLocService;
-    }
-    @GetMapping("/all")
-    public List<StorageLocation> getAllStoLocDetails(){
-        return iStorageLocService.getAllStoloc();
+    private final IStorageLocService storageLocService;
+
+    public StorageLocationController(IStorageLocService storageLocService) {
+        this.storageLocService = storageLocService;
     }
 
-    @GetMapping("/{_id}/get")
-    public StorageLocation getStoLocDetails(@PathVariable("_id") String _id){
-        return iStorageLocService.getStoLoc(_id);
+    @GetMapping
+    public List<StorageLocation> getAllStoLocDetails() {
+        return storageLocService.getAllStoloc();
     }
 
-    @PostMapping("/add")
-    public String addStoLocDetails(@RequestBody StorageLocation storageLocation){
-        iStorageLocService.addStoLoc(storageLocation);
-        return "Storage location was created successfully";
+    @GetMapping("/{id}")
+    public StorageLocation getStoLocDetails(@PathVariable String id) {
+        return storageLocService.getStoLoc(id);
     }
 
-    @PutMapping("/{_id}/update")
-    public String updateStoLocDetails(@PathVariable("_id") String _id, @RequestBody StorageLocation updated){
-        iStorageLocService.updateStoLoc(_id, updated);
-        return "Storage location was updated successfully";
+    @PostMapping
+    public String addStoLocDetails(@RequestBody StorageLocation storageLocation) {
+        storageLocService.addStoLoc(storageLocation);
+        return "Storage location added successfully";
     }
 
-    @DeleteMapping("/{_id}/delete")
-    public String deleteStoLocDetails(@PathVariable("_id") String _id){
-        iStorageLocService.deleteStoLoc(_id);
-        return "Storage location was deleted successfully";
+    @PutMapping("/{id}")
+    public String updateStoLocDetails(@PathVariable String id, @RequestBody StorageLocation updated) {
+        storageLocService.updateStoLoc(id, updated);
+        return "Storage location updated successfully";
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteStoLocDetails(@PathVariable String id) {
+        storageLocService.deleteStoLoc(id);
+        return "Storage location deleted successfully";
     }
 }

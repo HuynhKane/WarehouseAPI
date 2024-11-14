@@ -10,37 +10,38 @@ import java.util.List;
 @RequestMapping("/customer")
 public class CustomerController {
 
-    ICustomerService iCustomerService;
 
-    public CustomerController(ICustomerService iCustomerService){
-        this.iCustomerService = iCustomerService;
+    private final ICustomerService customerService;
+
+    public CustomerController(ICustomerService customerService) {
+        this.customerService = customerService;
     }
 
-    @GetMapping("/all")
-    public List<Customer> getAllCustomerDetails(){
-        return iCustomerService.getAllCustomer();
+    @GetMapping
+    public List<Customer> getAllCustomerDetails() {
+        return customerService.getAllCustomer();
     }
 
-    @GetMapping("/{id}/get")
-    public Customer getCustomerDetails(@PathVariable("_id") String _id){
-        return iCustomerService.getCustomer(_id);
+    @GetMapping("/{id}")
+    public Customer getCustomerDetails(@PathVariable String id) {
+        return customerService.getCustomer(id);
     }
 
-    @PostMapping("/add")
-    public String addCustomerDetails(@RequestBody Customer customer){
-        iCustomerService.addCustomer(customer);
+    @PostMapping
+    public String addCustomerDetails(@RequestBody Customer customer) {
+        customerService.addCustomer(customer);
         return "Customer was created successfully";
     }
 
-    @PutMapping("/{_id}/update")
-    public String updateCustomerDetails(@PathVariable("_id") String _id, @RequestBody Customer updatedCustomer){
-        iCustomerService.updateCustomer(_id, updatedCustomer);
+    @PutMapping("/{id}")
+    public String updateCustomerDetails(@PathVariable String id, @RequestBody Customer updatedCustomer) {
+        customerService.updateCustomer(id, updatedCustomer);
         return "Customer was updated successfully";
     }
 
-    @DeleteMapping("/{_id}/delete")
-    public String deleteCustomerDetails(@PathVariable("_id") String _id){
-        iCustomerService.deleteCustomer(_id);
+    @DeleteMapping("/{id}")
+    public String deleteCustomerDetails(@PathVariable String id) {
+        customerService.deleteCustomer(id);
         return "Customer was deleted successfully";
     }
 }

@@ -1,7 +1,5 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-
-
 import com.WarehouseAPI.WarehouseAPI.model.Notification;
 import com.WarehouseAPI.WarehouseAPI.service.INotificationService;
 import org.springframework.web.bind.annotation.*;
@@ -12,37 +10,37 @@ import java.util.List;
 @RequestMapping("/notification")
 public class NotificationController {
 
-     INotificationService iNotificationService;
+    private final INotificationService notificationService;
 
-    public NotificationController(INotificationService iNotificationService){
-        this.iNotificationService = iNotificationService;
+    public NotificationController(INotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
-    @GetMapping("/all")
-    public List<Notification> getAllNotificationDetails(){
-        return iNotificationService.getAllNotification();
+    @GetMapping
+    public List<Notification> getAllNotificationDetails() {
+        return notificationService.getAllNotification();
     }
 
-    @GetMapping("/{id}/get")
-    public Notification getNotificationDetails(@PathVariable("_id") String _id){
-        return iNotificationService.getNotification(_id);
+    @GetMapping("/{id}")
+    public Notification getNotificationDetails(@PathVariable String id) {
+        return notificationService.getNotification(id);
     }
 
-    @PostMapping("/add")
-    public String addNotificationDetails(@RequestBody Notification notification){
-        iNotificationService.addNotification(notification);
-        return "Notification was created successfully";
+    @PostMapping
+    public String addNotificationDetails(@RequestBody Notification notification) {
+        notificationService.addNotification(notification);
+        return "Notification added successfully";
     }
 
-    @PutMapping("/{_id}/update")
-    public String updateNotificationDetails(@PathVariable("_id") String _id, @RequestBody Notification updatedNotification){
-        iNotificationService.updateNotification(_id, updatedNotification);
-        return "Notification was updated successfully";
+    @PutMapping("/{id}")
+    public String updateNotificationDetails(@PathVariable String id, @RequestBody Notification updatedNotification) {
+        notificationService.updateNotification(id, updatedNotification);
+        return "Notification updated successfully";
     }
 
-    @DeleteMapping("/{_id}/delete")
-    public String deleteNotificationDetails(@PathVariable("_id") String _id){
-        iNotificationService.deleteNotification(_id);
-        return "Notification was deleted successfully";
+    @DeleteMapping("/{id}")
+    public String deleteNotificationDetails(@PathVariable String id) {
+        notificationService.deleteNotification(id);
+        return "Notification deleted successfully";
     }
 }

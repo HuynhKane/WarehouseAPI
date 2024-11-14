@@ -1,50 +1,46 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-
-import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.model.Report;
 import com.WarehouseAPI.WarehouseAPI.service.IReportService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/report")
 public class ReportController {
 
-    IReportService iReportService;
+    private final IReportService reportService;
 
-    public ReportController(IReportService iReportService){
-        this.iReportService = iReportService;
+    public ReportController(IReportService reportService) {
+        this.reportService = reportService;
     }
 
-    @GetMapping("/all")
-    public List<Report> getAllReportDetails(){
-        return iReportService.getAllReport();
+    @GetMapping
+    public List<Report> getAllReportDetails() {
+        return reportService.getAllReport();
     }
 
-    @GetMapping("/{_id}/get")
-    public Report getReportDetails(@PathVariable("_id") String _id){
-        return iReportService.getReport(_id);
+    @GetMapping("/{id}")
+    public Report getReportDetails(@PathVariable String id) {
+        return reportService.getReport(id);
     }
 
-    @PostMapping("/add")
-    public String addReportDetails(@RequestBody Report report){
-        iReportService.addReport(report);
-        return "Report was created successfully";
+    @PostMapping
+    public String addReportDetails(@RequestBody Report report) {
+        reportService.addReport(report);
+        return "Report added successfully";
     }
 
-    @PutMapping("/{_id}/update")
-    public String updateReportDetails(@PathVariable("_id") String _id, @RequestBody Report updatedReport){
-        iReportService.updateReport(_id, updatedReport);
-        return "Report was updated successfully";
+    @PutMapping("/{id}")
+    public String updateReportDetails(@PathVariable String id, @RequestBody Report updatedReport) {
+        reportService.updateReport(id, updatedReport);
+        return "Report updated successfully";
     }
 
-    @DeleteMapping("/{_id}/delete")
-    public String deleteReportDetails(@PathVariable("_id") String _id){
-        iReportService.deleteReport(_id);
-        return "Report was deleted successfully";
+    @DeleteMapping("/{id}")
+    public String deleteReportDetails(@PathVariable String id) {
+        reportService.deleteReport(id);
+        return "Report deleted successfully";
     }
-
 }

@@ -2,49 +2,45 @@ package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.service.IProductService;
-import com.WarehouseAPI.WarehouseAPI.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/product")
 public class ProductController {
 
-    IProductService iProductService;
+    private final IProductService productService;
 
-    public ProductController(IProductService iProductService){
-        this.iProductService = iProductService;
+    public ProductController(IProductService productService) {
+        this.productService = productService;
     }
 
-    @GetMapping("/all")
-    public List<Product> getAllProductDetails(){
-        return iProductService.getAllProducts();
+    @GetMapping
+    public List<Product> getAllProductDetails() {
+        return productService.getAllProducts();
     }
 
-    @GetMapping("/{_id}/get")
-    public Product getProductDetails(@PathVariable("_id") String _id){
-        return iProductService.getProduct(_id);
+    @GetMapping("/{id}")
+    public Product getProductDetails(@PathVariable String id) {
+        return productService.getProduct(id);
     }
 
-    @PostMapping("/add")
-    public String addProductDetails(@RequestBody Product product){
-        iProductService.addProduct(product);
-        return "Product was created successfully";
+    @PostMapping
+    public String addProductDetails(@RequestBody Product product) {
+        productService.addProduct(product);
+        return "Product added successfully";
     }
 
-    @PutMapping("/{_id}/update")
-    public String updateProductDetails(@PathVariable("_id") String _id, @RequestBody Product updatedProduct){
-        iProductService.updateProduct(_id, updatedProduct);
-        return "Product was updated successfully";
+    @PutMapping("/{id}")
+    public String updateProductDetails(@PathVariable String id, @RequestBody Product updatedProduct) {
+        productService.updateProduct(id, updatedProduct);
+        return "Product updated successfully";
     }
 
-    @DeleteMapping("/{_id}/delete")
-    public String deleteProductDetails(@PathVariable("_id") String _id){
-        iProductService.deleteProduct(_id);
-        return "Product was deleted successfully";
+    @DeleteMapping("/{id}")
+    public String deleteProductDetails(@PathVariable String id) {
+        productService.deleteProduct(id);
+        return "Product deleted successfully";
     }
 }
