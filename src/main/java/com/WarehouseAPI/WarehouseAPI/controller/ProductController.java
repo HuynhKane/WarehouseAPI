@@ -39,6 +39,11 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/filter")
+    public List<Product> getFilteredProductsDetails(@RequestParam("props") String props, @RequestParam("value") String value){
+        return productService.getFilteredProducts(props, value);
+    }
+
     @PostMapping
     public String addProductDetails(@RequestBody Product product) {
         productService.addProduct(product);

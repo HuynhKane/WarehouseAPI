@@ -76,6 +76,19 @@ public class ProductService  implements IProductService{
     }
 
     @Override
+    public List<Product> getFilteredProducts(String props, String value) {
+        if("genreId".equals(props)){
+            return productRepository.findByGenreId(value);
+        }else if("isInStock".equals(props)){
+            return productRepository.findByIsInStock(Boolean.parseBoolean(value));
+        }else if("storageLocationId".equals(props)){
+            return productRepository.findByStorageLocationId(value);
+        }else{
+            return null;
+        }
+    }
+
+    @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }

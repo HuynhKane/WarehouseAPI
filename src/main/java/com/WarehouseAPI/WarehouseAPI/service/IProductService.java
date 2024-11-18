@@ -13,5 +13,6 @@ public interface IProductService {
     public Product getProduct(String _id);
     public List<Product> getSortedProductAscending(String props);
     public List<Product> getSortedProductDescending(String props);
+    public List<Product> getFilteredProducts(String props, String value);
     public List<Product> getAllProducts();
 }
