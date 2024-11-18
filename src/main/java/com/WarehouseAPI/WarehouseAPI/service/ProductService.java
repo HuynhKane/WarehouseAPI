@@ -66,13 +66,13 @@ public class ProductService  implements IProductService{
     }
 
     @Override
-    public List<Product> getSortedProductAscending() {
-        return productRepository.findAll(Sort.by(Sort.Direction.ASC, "productName"));
+    public List<Product> getSortedProductAscending(String props) {
+        return productRepository.findAll(Sort.by(Sort.Direction.ASC, props));
     }
 
     @Override
-    public List<Product> getSortedProductDescending() {
-        return productRepository.findAll(Sort.by(Sort.Direction.DESC, "productName"));
+    public List<Product> getSortedProductDescending(String props) {
+        return productRepository.findAll(Sort.by(Sort.Direction.DESC, props));
     }
 
     @Override

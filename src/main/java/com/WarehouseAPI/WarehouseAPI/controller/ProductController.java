@@ -28,11 +28,11 @@ public class ProductController {
     }
 
     @GetMapping("/sort")
-    public List<Product> getSortedProductDetails(@RequestParam("order") String order) {
+    public List<Product> getSortedProductDetails(@RequestParam("props") String props, @RequestParam("order") String order) {
         if("asc".equalsIgnoreCase(order)){
-            return productService.getSortedProductAscending();
+            return productService.getSortedProductAscending(props);
         } else if ("desc".equalsIgnoreCase(order)) {
-            return productService.getSortedProductDescending();
+            return productService.getSortedProductDescending(props);
         } else
         {
             throw new IllegalArgumentException("Invalid sort order. Use 'asc' or 'desc'.");
