@@ -43,6 +43,10 @@ public class ProductController {
     public List<Product> getFilteredProductsDetails(@RequestParam("props") String props, @RequestParam("value") String value){
         return productService.getFilteredProducts(props, value);
     }
+    @GetMapping("/search")
+    public List<Product> getSearchedProductsDetails(@RequestParam("props") String props, @RequestParam("value") String value){
+        return productService.getSearchedProducts(props, value);
+    }
 
     @PostMapping
     public String addProductDetails(@RequestBody Product product) {

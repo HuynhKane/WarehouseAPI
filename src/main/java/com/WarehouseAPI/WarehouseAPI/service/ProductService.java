@@ -89,6 +89,15 @@ public class ProductService  implements IProductService{
     }
 
     @Override
+    public List<Product> getSearchedProducts(String props, String value) {
+        if ("productName".equals(props)) {
+            return productRepository.findByProductNameContainingIgnoreCase(value);
+        }
+        else {
+            return null;
+        }
+    }
+    @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }

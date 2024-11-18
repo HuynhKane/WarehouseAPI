@@ -14,5 +14,6 @@ public interface IProductService {
     public List<Product> getSortedProductAscending(String props);
     public List<Product> getSortedProductDescending(String props);
     public List<Product> getFilteredProducts(String props, String value);
+    public List<Product> getSearchedProducts(String props, String value);
     public List<Product> getAllProducts();
 }
