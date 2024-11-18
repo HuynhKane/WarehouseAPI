@@ -31,6 +31,13 @@ public class ProductController {
         productService.addProduct(product);
         return "Product added successfully";
     }
+    @PostMapping("/addList")
+    public String addProductsDetails(@RequestBody List<Product> products) {
+        for (Product product : products) {
+            productService.addProduct(product);
+        }
+        return "List product added successfully";
+    }
 
     @PutMapping("/{id}")
     public String updateProductDetails(@PathVariable String id, @RequestBody Product updatedProduct) {
