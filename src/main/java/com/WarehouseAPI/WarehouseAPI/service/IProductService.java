@@ -11,5 +11,7 @@ public interface IProductService {
     public String updateProduct(String _id, Product updatedProduct);
     public String deleteProduct(String idProduct);
     public Product getProduct(String _id);
+    public List<Product> getSortedProductAscending();
+    public List<Product> getSortedProductDescending();
     public List<Product> getAllProducts();
 }

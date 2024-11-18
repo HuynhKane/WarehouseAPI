@@ -4,6 +4,7 @@ import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.Console;
@@ -62,6 +63,16 @@ public class ProductService  implements IProductService{
         if (productRepository.findById(_id).isEmpty())
             return null;
         return productRepository.findById(_id).get();
+    }
+
+    @Override
+    public List<Product> getSortedProductAscending() {
+        return productRepository.findAll(Sort.by(Sort.Direction.ASC, "productName"));
+    }
+
+    @Override
+    public List<Product> getSortedProductDescending() {
+        return productRepository.findAll(Sort.by(Sort.Direction.DESC, "productName"));
     }
 
     @Override

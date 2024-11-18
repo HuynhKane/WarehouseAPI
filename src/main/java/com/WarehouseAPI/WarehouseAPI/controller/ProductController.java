@@ -5,6 +5,7 @@ import com.WarehouseAPI.WarehouseAPI.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/product")
@@ -24,6 +25,18 @@ public class ProductController {
     @GetMapping("/{id}")
     public Product getProductDetails(@PathVariable String id) {
         return productService.getProduct(id);
+    }
+
+    @GetMapping("/sort")
+    public List<Product> getSortedProductDetails(@RequestParam("order") String order) {
+        if("asc".equalsIgnoreCase(order)){
+            return productService.getSortedProductAscending();
+        } else if ("desc".equalsIgnoreCase(order)) {
+            return productService.getSortedProductDescending();
+        } else
+        {
+            throw new IllegalArgumentException("Invalid sort order. Use 'asc' or 'desc'.");
+        }
     }
 
     @PostMapping
