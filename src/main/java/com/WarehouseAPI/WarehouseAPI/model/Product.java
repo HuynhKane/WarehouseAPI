@@ -1,27 +1,29 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(collection = "product")
 public class Product {
-
     @Id
     private String _id;
-    private String idProduct;
     private String productName;
-    private String genreId;
+    @Field("genreId")
+    private ObjectId genreId;
     private int quantity;
     private String description;
     private BigDecimal importPrice;
     private BigDecimal sellingPrice;
-    private String supplierId;
+    @Field("supplierId")
+    private ObjectId supplierId;
     private boolean isInStock;
-    private String barcode;
-    private String storageLocationId;
+    @Field("storageLocationId")
+    private ObjectId storageLocationId;
     private LocalDateTime lastUpdated;
     private String image;
 
@@ -33,12 +35,20 @@ public class Product {
         this._id = _id;
     }
 
-    public String getIdProduct() {
-        return idProduct;
+    public ObjectId getSupplierId() {
+        return supplierId;
     }
 
-    public void setIdProduct(String idProduct) {
-        this.idProduct = idProduct;
+    public void setSupplierId(ObjectId supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public ObjectId getStorageLocationId() {
+        return storageLocationId;
+    }
+
+    public void setStorageLocationId(ObjectId storageLocationId) {
+        this.storageLocationId = storageLocationId;
     }
 
     public String getProductName() {
@@ -49,11 +59,11 @@ public class Product {
         this.productName = productName;
     }
 
-    public String getGenreId() {
+    public ObjectId getGenreId() {
         return genreId;
     }
 
-    public void setGenreId(String genreId) {
+    public void setGenreId(ObjectId genreId) {
         this.genreId = genreId;
     }
 
@@ -89,13 +99,6 @@ public class Product {
         this.sellingPrice = sellingPrice;
     }
 
-    public String getSupplierId() {
-        return supplierId;
-    }
-
-    public void setSupplierId(String supplierId) {
-        this.supplierId = supplierId;
-    }
 
     public boolean isInStock() {
         return isInStock;
@@ -105,21 +108,6 @@ public class Product {
         isInStock = inStock;
     }
 
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
-    public String getStorageLocationId() {
-        return storageLocationId;
-    }
-
-    public void setStorageLocationId(String storageLocationId) {
-        this.storageLocationId = storageLocationId;
-    }
 
     public LocalDateTime getLastUpdated() {
         return lastUpdated;

@@ -6,33 +6,15 @@ public class Supplier {
 
     @Id
     private String _id;
-
-    private String idSupplier;
-
     private String name;
     private  String email;
 
     private Address address;
-
-    private String phone;
     private int ratings;
 
     public String get_id() {
         return _id;
     }
-
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
-    public String getIdSupplier() {
-        return idSupplier;
-    }
-
-    public void setIdSupplier(String idSupplier) {
-        this.idSupplier = idSupplier;
-    }
-
     public String getName() {
         return name;
     }
@@ -57,13 +39,6 @@ public class Supplier {
         this.address = address;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 
     public int getRatings() {
         return ratings;

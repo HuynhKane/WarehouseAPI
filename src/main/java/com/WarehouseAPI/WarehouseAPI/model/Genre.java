@@ -8,19 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Genre {
     @Id
     private String _id;
-    private String idGenre;
     private String genreName;
 
     public String get_id() {
         return _id;
-    }
-
-    public String getIdGenre() {
-        return idGenre;
-    }
-
-    public void setIdGenre(String idGenre) {
-        this.idGenre = idGenre;
     }
 
     public String getGenreName() {

@@ -13,8 +13,7 @@ public class ProductResponse {
     private BigDecimal sellingPrice;
     private Supplier supplier;
     private boolean isInStock;
-    private String barcode;
-    private String storageLocationId;
+    private StorageLocation storageLocation;
     private LocalDateTime lastUpdated;
     private String image;
 
@@ -93,20 +92,12 @@ public class ProductResponse {
         isInStock = inStock;
     }
 
-    public String getBarcode() {
-        return barcode;
+    public StorageLocation getStorageLocation() {
+        return storageLocation;
     }
 
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
-    public String getStorageLocationId() {
-        return storageLocationId;
-    }
-
-    public void setStorageLocationId(String storageLocationId) {
-        this.storageLocationId = storageLocationId;
+    public void setStorageLocation(StorageLocation storageLocation) {
+        this.storageLocation = storageLocation;
     }
 
     public LocalDateTime getLastUpdated() {

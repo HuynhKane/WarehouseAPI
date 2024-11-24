@@ -29,7 +29,6 @@ public class GenreService implements IGenreService{
         Optional<Genre> existingGenreOpt = genreRepository.findById(_id);
         if(existingGenreOpt.isPresent()){
             Genre existingGenre = existingGenreOpt.get();
-            existingGenre.setIdGenre(updateGenre.getIdGenre());
             existingGenre.setGenreName(updateGenre.getGenreName());
             genreRepository.save(existingGenre);
 

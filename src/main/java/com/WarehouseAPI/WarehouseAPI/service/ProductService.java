@@ -5,6 +5,7 @@ import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import lombok.extern.java.Log;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -49,7 +50,6 @@ public class ProductService  implements IProductService{
             Optional<Product> existingProductOpt = productRepository.findById(_id);
             if (existingProductOpt.isPresent()) {
                 Product existingProduct = existingProductOpt.get();
-                if (updatedProduct.getIdProduct() != null) existingProduct.setIdProduct(updatedProduct.getIdProduct());
                 if (updatedProduct.getProductName() != null) existingProduct.setProductName(updatedProduct.getProductName());
                 if (updatedProduct.getGenreId() != null) existingProduct.setGenreId(updatedProduct.getGenreId());
                 if (updatedProduct.getQuantity() >= 0) existingProduct.setQuantity(updatedProduct.getQuantity());
@@ -57,7 +57,6 @@ public class ProductService  implements IProductService{
                 if (updatedProduct.getImportPrice() != null) existingProduct.setImportPrice(updatedProduct.getImportPrice());
                 if (updatedProduct.getSellingPrice() != null) existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
                 if (updatedProduct.getSupplierId() != null) existingProduct.setSupplierId(updatedProduct.getSupplierId());
-                if (updatedProduct.getBarcode() != null) existingProduct.setBarcode(updatedProduct.getBarcode());
                 if (updatedProduct.getStorageLocationId() != null) existingProduct.setStorageLocationId(updatedProduct.getStorageLocationId());
                 if (updatedProduct.getLastUpdated() != null) existingProduct.setLastUpdated(updatedProduct.getLastUpdated());
                 if (updatedProduct.getImage() != null) existingProduct.setImage(updatedProduct.getImage());
@@ -88,10 +87,12 @@ public class ProductService  implements IProductService{
     public ProductResponse getProduct(String _id) {
         try {
             Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(Criteria.where("_id").is(_id)),
-                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))), // Match by ObjectId
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true)
             );
             AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
@@ -104,9 +105,11 @@ public class ProductService  implements IProductService{
     @Override
     public List<ProductResponse> getAllProducts() {
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
-                Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                 Aggregation.unwind("supplier", true),
+                Aggregation.unwind("storageLocation", true),
                 Aggregation.unwind("genre", true)
         );
         AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
@@ -117,9 +120,11 @@ public class ProductService  implements IProductService{
     public List<ProductResponse> getSortedProductAscending(String props) {
         try {
             Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true),
                     Aggregation.sort(Sort.Direction.ASC, props)
             );
@@ -135,9 +140,11 @@ public class ProductService  implements IProductService{
     public List<ProductResponse> getSortedProductDescending(String props) {
         try {
             Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true),
                     Aggregation.sort(Sort.Direction.DESC, props)
             );
@@ -164,9 +171,11 @@ public class ProductService  implements IProductService{
             }
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(criteria),
-                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true)
             );
             AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
@@ -188,9 +197,11 @@ public class ProductService  implements IProductService{
             }
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(criteria),
-                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true)
             );
             AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
