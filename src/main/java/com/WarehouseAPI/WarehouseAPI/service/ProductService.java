@@ -1,11 +1,22 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
+import com.WarehouseAPI.WarehouseAPI.model.Genre;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
+import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.Console;
 import java.util.List;
@@ -14,91 +25,186 @@ import java.util.Optional;
 @Service
 public class ProductService  implements IProductService{
     @Autowired
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public ProductService(ProductRepository productRepository){
+    public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate){
         this.productRepository = productRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
-    public String addProduct(Product product) {
-        productRepository.save(product);
-        return "Add Successfully";
-    }
-
-    @Override
-    public String updateProduct(String _id, Product updatedProduct) {
-        Optional<Product> existingProductOpt = productRepository.findById(_id);
-        if (existingProductOpt.isPresent()) {
-            Product existingProduct = existingProductOpt.get();
-            existingProduct.setIdProduct(updatedProduct.getIdProduct());
-            existingProduct.setProductName(updatedProduct.getProductName());
-            existingProduct.setGenreId(updatedProduct.getGenreId());
-            existingProduct.setQuantity(updatedProduct.getQuantity());
-            existingProduct.setDescription(updatedProduct.getDescription());
-            existingProduct.setImportPrice(updatedProduct.getImportPrice());
-            existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
-            existingProduct.setSupplierId(updatedProduct.getSupplierId());
-            existingProduct.setInStock(updatedProduct.isInStock());
-            existingProduct.setBarcode(updatedProduct.getBarcode());
-            existingProduct.setStorageLocationId(updatedProduct.getStorageLocationId());
-            existingProduct.setLastUpdated(updatedProduct.getLastUpdated());
-            existingProduct.setImage(updatedProduct.getImage());
-            productRepository.save(existingProduct);
-
-            return "Update Successfully";
-        } else {
-            return "Product not found";
+    public ResponseEntity<String> addProduct(Product product) {
+        try {
+            productRepository.save(product);
+            return ResponseEntity.ok("Add Successfully");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding product", e);
         }
     }
 
     @Override
-    public String deleteProduct(String idProduct) {
-        productRepository.deleteById(idProduct);
-        return "Delete Successfully";
+    public ResponseEntity<String> updateProduct(String _id, Product updatedProduct) {
+        try {
+            Optional<Product> existingProductOpt = productRepository.findById(_id);
+            if (existingProductOpt.isPresent()) {
+                Product existingProduct = existingProductOpt.get();
+                if (updatedProduct.getIdProduct() != null) existingProduct.setIdProduct(updatedProduct.getIdProduct());
+                if (updatedProduct.getProductName() != null) existingProduct.setProductName(updatedProduct.getProductName());
+                if (updatedProduct.getGenreId() != null) existingProduct.setGenreId(updatedProduct.getGenreId());
+                if (updatedProduct.getQuantity() >= 0) existingProduct.setQuantity(updatedProduct.getQuantity());
+                if (updatedProduct.getDescription() != null) existingProduct.setDescription(updatedProduct.getDescription());
+                if (updatedProduct.getImportPrice() != null) existingProduct.setImportPrice(updatedProduct.getImportPrice());
+                if (updatedProduct.getSellingPrice() != null) existingProduct.setSellingPrice(updatedProduct.getSellingPrice());
+                if (updatedProduct.getSupplierId() != null) existingProduct.setSupplierId(updatedProduct.getSupplierId());
+                if (updatedProduct.getBarcode() != null) existingProduct.setBarcode(updatedProduct.getBarcode());
+                if (updatedProduct.getStorageLocationId() != null) existingProduct.setStorageLocationId(updatedProduct.getStorageLocationId());
+                if (updatedProduct.getLastUpdated() != null) existingProduct.setLastUpdated(updatedProduct.getLastUpdated());
+                if (updatedProduct.getImage() != null) existingProduct.setImage(updatedProduct.getImage());
+                productRepository.save(existingProduct);
+                return ResponseEntity.ok("Update Successful");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating product", e);
+        }
     }
 
-    @Override
-    public Product getProduct(String _id) {
-        if (productRepository.findById(_id).isEmpty())
-            return null;
-        return productRepository.findById(_id).get();
-    }
 
     @Override
-    public List<Product> getSortedProductAscending(String props) {
-        return productRepository.findAll(Sort.by(Sort.Direction.ASC, props));
+    public ResponseEntity<String> deleteProduct(String idProduct) {
+        try {
+            productRepository.deleteById(idProduct);
+            return ResponseEntity.ok("Delete Successfully");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error deleting product", e);
+        }
     }
 
-    @Override
-    public List<Product> getSortedProductDescending(String props) {
-        return productRepository.findAll(Sort.by(Sort.Direction.DESC, props));
-    }
+
 
     @Override
-    public List<Product> getFilteredProducts(String props, String value) {
-        if("genreId".equals(props)){
-            return productRepository.findByGenreId(value);
-        }else if("isInStock".equals(props)){
-            return productRepository.findByIsInStock(Boolean.parseBoolean(value));
-        }else if("storageLocationId".equals(props)){
-            return productRepository.findByStorageLocationId(value);
-        }else{
-            return null;
+    public ProductResponse getProduct(String _id) {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("_id").is(_id)),
+                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("genre", true)
+            );
+            AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            return result.getUniqueMappedResult();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);
+        }
+    }
+    @Override
+    public List<ProductResponse> getAllProducts() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
+                Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                Aggregation.unwind("supplier", true),
+                Aggregation.unwind("genre", true)
+        );
+        AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                aggregation, "product", ProductResponse.class);
+        return results.getMappedResults();
+    }
+    @Override
+    public List<ProductResponse> getSortedProductAscending(String props) {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("genre", true),
+                    Aggregation.sort(Sort.Direction.ASC, props)
+            );
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            return results.getMappedResults();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sorting products (ascending)", e);
         }
     }
 
     @Override
-    public List<Product> getSearchedProducts(String props, String value) {
-        if ("productName".equals(props)) {
-            return productRepository.findByProductNameContainingIgnoreCase(value);
-        }
-        else {
-            return null;
+    public List<ProductResponse> getSortedProductDescending(String props) {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("genre", true),
+                    Aggregation.sort(Sort.Direction.DESC, props)
+            );
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            return results.getMappedResults();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sorting products (descending)", e);
         }
     }
+
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponse> getFilteredProducts(String props, String value) {
+        try{
+            Criteria criteria = new Criteria();
+            if("supplierId".equals(props)){
+                criteria = Criteria.where("supplierId").is(value);
+            }else if("isInStock".equals(props)){
+                criteria = Criteria.where("isInStock").is(Boolean.parseBoolean(value));
+            }else if("storageLocationId".equals(props)){
+                criteria = Criteria.where("storageLocationId").is(value);
+            }else{
+                return null;
+            }
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(criteria),
+                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("genre", true)
+            );
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            return results.getMappedResults();
+        } catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error filtering products", e);
+        }
     }
+
+    @Override
+    public List<ProductResponse> getSearchedProducts(String props, String value) {
+        try {
+            Criteria criteria = new Criteria();
+            if ("productName".equals(props)) {
+                criteria = Criteria.where("productName").regex(value, "i");
+            } else {
+                return null;
+            }
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(criteria),
+                    Aggregation.lookup("supplier", "supplierId", "idSupplier", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "idGenre", "genre"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("genre", true)
+            );
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            return results.getMappedResults();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error searching products", e);
+        }
+    }
+
+
+
 }
+
+
+
+
