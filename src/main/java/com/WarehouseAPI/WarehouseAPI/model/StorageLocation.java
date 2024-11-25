@@ -3,7 +3,7 @@ package com.WarehouseAPI.WarehouseAPI.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "storagelocation")
+@Document(collection = "storageLocation")
 public class StorageLocation {
 
     @Id
