@@ -9,8 +9,8 @@ import java.util.List;
 
 
 public interface IProductService {
-    public ResponseEntity<String> addProduct(Product product);
-    public ResponseEntity<String> updateProduct(String _id, Product updatedProduct);
+    public ResponseEntity<String> addProduct(ProductResponse productResponse);
+    public ResponseEntity<String> updateProduct(String _id, ProductResponse updatedProduct);
     public ResponseEntity<String> deleteProduct(String idProduct);
     public ProductResponse getProduct(String _id);
     public List<ProductResponse> getSortedProductAscending(String props);

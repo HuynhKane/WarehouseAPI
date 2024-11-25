@@ -66,20 +66,20 @@ public class ProductController {
     }
 
     @PostMapping
-    public String addProductDetails(@RequestBody Product product) {
+    public String addProductDetails(@RequestBody ProductResponse product) {
         productService.addProduct(product);
         return "Product added successfully";
     }
     @PostMapping("/addList")
-    public String addProductsDetails(@RequestBody List<Product> products) {
-        for (Product product : products) {
+    public String addProductsDetails(@RequestBody List<ProductResponse> products) {
+        for (ProductResponse product : products) {
             productService.addProduct(product);
         }
         return "List product added successfully";
     }
 
     @PutMapping("/{id}")
-    public String updateProductDetails(@PathVariable String id, @RequestBody Product updatedProduct) {
+    public String updateProductDetails(@PathVariable String id, @RequestBody ProductResponse updatedProduct) {
         productService.updateProduct(id, updatedProduct);
         return "Product updated successfully";
     }
