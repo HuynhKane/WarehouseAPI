@@ -10,9 +10,6 @@ public class Customer {
     @Id
     private String id;
 
-    @Field("idCustomer")
-    private String idCustomer;
-
     private String email;
 
     @Field("customerName")
@@ -28,14 +25,6 @@ public class Customer {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getIdCustomer() {
-        return idCustomer;
-    }
-
-    public void setIdCustomer(String idCustomer) {
-        this.idCustomer = idCustomer;
     }
 
     public String getEmail() {

@@ -9,8 +9,6 @@ public class User {
     @Id
     private  String _id;
 
-    private String idUser;
-
     private String username;
 
     private String passwordHash;
@@ -23,14 +21,6 @@ public class User {
 
     public void set_id(String _id) {
         this._id = _id;
-    }
-
-    public String getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(String idUser) {
-        this.idUser = idUser;
     }
 
     public String getUsername() {

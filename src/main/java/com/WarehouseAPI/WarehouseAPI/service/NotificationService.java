@@ -29,11 +29,11 @@ public class NotificationService implements INotificationService{
         Optional<Notification> existingNofiticationOpt = notificationRepository.findById(_id);
         if(existingNofiticationOpt.isPresent()){
             Notification existingNotification = existingNofiticationOpt.get();
-            existingNotification.setIdNotification(notification.getIdNotification());
             existingNotification.setDescription(notification.getDescription());
             existingNotification.setType(notification.getType());
             existingNotification.setTitle(notification.getTitle());
             existingNotification.setTimestamp(notification.getTimestamp());
+            notificationRepository.save(existingNotification);
 
             return "Update notification, done";
         }

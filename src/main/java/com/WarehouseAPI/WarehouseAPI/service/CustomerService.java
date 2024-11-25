@@ -27,7 +27,6 @@ public class CustomerService implements ICustomerService{
         Optional<Customer> existCustomerOpt = customerRepository.findById(_id);
         if (existCustomerOpt.isPresent()){
             Customer customer = existCustomerOpt.get();
-            customer.setIdCustomer(updatedCustomer.getIdCustomer());
             customer.setEmail(updatedCustomer.getEmail());
             customer.setCustomerName(updatedCustomer.getCustomerName());
             customer.setAddress(updatedCustomer.getAddress());

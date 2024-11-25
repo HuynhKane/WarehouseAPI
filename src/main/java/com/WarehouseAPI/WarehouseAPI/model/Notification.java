@@ -9,7 +9,6 @@ import java.util.Date;
 public class Notification {
     @Id
     private String id;
-    private String idNotification;
     private String title;
     private String description;
     private String type;
@@ -21,14 +20,6 @@ public class Notification {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getIdNotification() {
-        return idNotification;
-    }
-
-    public void setIdNotification(String idNotification) {
-        this.idNotification = idNotification;
     }
 
     public String getTitle() {
