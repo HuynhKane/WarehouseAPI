@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.Genre;
 import com.WarehouseAPI.WarehouseAPI.repository.GenreRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IGenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GenreService implements IGenreService{
+public class GenreService implements IGenreService {
 
     @Autowired
     GenreRepository genreRepository;

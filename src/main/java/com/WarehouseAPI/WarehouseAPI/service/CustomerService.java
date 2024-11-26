@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.Customer;
 import com.WarehouseAPI.WarehouseAPI.repository.CustomerRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CustomerService implements ICustomerService{
+public class CustomerService implements ICustomerService {
     @Autowired
     CustomerRepository customerRepository;
 

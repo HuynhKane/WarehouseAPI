@@ -1,11 +1,10 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.ImportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
-import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IImportPackage;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ImportPackageService implements  IImportPackage{
+public class ImportPackageService implements IImportPackage {
 
 
     @Autowired
@@ -79,7 +78,7 @@ public class ImportPackageService implements  IImportPackage{
     }
 
     @Override
-    public List<ImportPackageResponse> getAllImportPakages() {
+    public List<ImportPackageResponse> getAllImportPackages() {
             try {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.lookup("user", "idReceiver", "_id", "receiver"),

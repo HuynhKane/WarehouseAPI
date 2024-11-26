@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.Notification;
 import com.WarehouseAPI.WarehouseAPI.repository.NotificationRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.INotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class NotificationService implements INotificationService{
+public class NotificationService implements INotificationService {
 
     @Autowired
     NotificationRepository notificationRepository;

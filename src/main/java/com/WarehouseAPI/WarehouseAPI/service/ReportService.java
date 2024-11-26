@@ -1,9 +1,8 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
-import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
-import com.WarehouseAPI.WarehouseAPI.model.Report;
-import com.WarehouseAPI.WarehouseAPI.model.ReportResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ReportResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ReportRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IReportService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
-public class ReportService implements IReportService{
+public class ReportService implements IReportService {
 
     @Autowired
     private final ReportRepository reportRepository;

@@ -1,7 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.Notification;
-import com.WarehouseAPI.WarehouseAPI.service.INotificationService;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.INotificationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

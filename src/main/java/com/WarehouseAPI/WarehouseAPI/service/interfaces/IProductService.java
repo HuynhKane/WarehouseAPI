@@ -1,9 +1,7 @@
-package com.WarehouseAPI.WarehouseAPI.service;
+package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
-import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

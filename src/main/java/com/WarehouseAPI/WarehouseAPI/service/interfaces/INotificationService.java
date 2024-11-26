@@ -1,4 +1,4 @@
-package com.WarehouseAPI.WarehouseAPI.service;
+package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
 
 import com.WarehouseAPI.WarehouseAPI.model.Notification;

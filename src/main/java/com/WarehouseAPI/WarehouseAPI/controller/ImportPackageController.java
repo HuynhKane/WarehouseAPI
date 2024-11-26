@@ -2,7 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.controller;
 
 
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.service.ImportPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class ImportPackageController {
 
     @GetMapping
     public ResponseEntity<List<ImportPackageResponse>> getAllImportPackages() {
-        List<ImportPackageResponse> importPackages = importPackageService.getAllImportPakages();
+        List<ImportPackageResponse> importPackages = importPackageService.getAllImportPackages();
         return new ResponseEntity<>(importPackages, HttpStatus.OK);
     }
 

@@ -1,6 +1,6 @@
-package com.WarehouseAPI.WarehouseAPI.model;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+package com.WarehouseAPI.WarehouseAPI.model.response;
+import com.WarehouseAPI.WarehouseAPI.model.Supplier;
+import com.WarehouseAPI.WarehouseAPI.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

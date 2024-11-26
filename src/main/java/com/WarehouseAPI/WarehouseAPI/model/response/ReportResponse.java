@@ -1,6 +1,6 @@
-package com.WarehouseAPI.WarehouseAPI.model;
+package com.WarehouseAPI.WarehouseAPI.model.response;
 
-import org.springframework.data.annotation.Id;
+import com.WarehouseAPI.WarehouseAPI.model.User;
 
 import java.util.Date;
 

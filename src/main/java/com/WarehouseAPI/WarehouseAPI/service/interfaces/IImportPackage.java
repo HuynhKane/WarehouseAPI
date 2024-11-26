@@ -1,9 +1,7 @@
-package com.WarehouseAPI.WarehouseAPI.service;
+package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.ImportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
-import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
+import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -14,5 +12,5 @@ public interface IImportPackage {
     public ResponseEntity<ImportPackage> updateImportPackage(String _id, ImportPackage importPackage);
     public ResponseEntity<ImportPackage> deleteImportPackage(String id);
     public ImportPackageResponse getImportPackage(String _id);
-    public List<ImportPackageResponse> getAllImportPakages();
+    public List<ImportPackageResponse> getAllImportPackages();
 }

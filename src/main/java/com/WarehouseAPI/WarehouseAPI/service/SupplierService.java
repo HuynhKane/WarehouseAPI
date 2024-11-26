@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 import com.WarehouseAPI.WarehouseAPI.repository.SupplierRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.ISupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 
 @Service
-public class SupplierService implements ISupplierService{
+public class SupplierService implements ISupplierService {
 
     @Autowired
     SupplierRepository supplierRepository;

@@ -1,19 +1,13 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
-import com.WarehouseAPI.WarehouseAPI.model.Supplier;
-import com.WarehouseAPI.WarehouseAPI.service.IProductService;
-import com.WarehouseAPI.WarehouseAPI.service.ISupplierService;
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/product")

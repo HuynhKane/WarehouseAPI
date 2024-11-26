@@ -1,7 +1,8 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProductService  implements IProductService{
+public class ProductService  implements IProductService {
     @Autowired
     private final ProductRepository productRepository;
     private final MongoTemplate mongoTemplate;

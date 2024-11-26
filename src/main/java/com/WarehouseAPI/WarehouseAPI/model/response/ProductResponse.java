@@ -1,4 +1,8 @@
-package com.WarehouseAPI.WarehouseAPI.model;
+package com.WarehouseAPI.WarehouseAPI.model.response;
+
+import com.WarehouseAPI.WarehouseAPI.model.Genre;
+import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
+import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -1,7 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
-import com.WarehouseAPI.WarehouseAPI.service.IStorageLocService;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStorageLocService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

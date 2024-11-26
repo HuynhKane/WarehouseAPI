@@ -1,7 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.Supplier;
-import com.WarehouseAPI.WarehouseAPI.service.ISupplierService;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.ISupplierService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

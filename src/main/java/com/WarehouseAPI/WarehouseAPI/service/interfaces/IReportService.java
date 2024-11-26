@@ -1,8 +1,6 @@
-package com.WarehouseAPI.WarehouseAPI.service;
+package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
-import com.WarehouseAPI.WarehouseAPI.model.Genre;
-import com.WarehouseAPI.WarehouseAPI.model.Report;
-import com.WarehouseAPI.WarehouseAPI.model.ReportResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.ReportResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

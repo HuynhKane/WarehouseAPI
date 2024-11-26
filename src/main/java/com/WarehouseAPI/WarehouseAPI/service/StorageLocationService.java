@@ -2,13 +2,14 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.repository.StorageLocationRepository;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStorageLocService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class StorageLocationService implements IStorageLocService{
+public class StorageLocationService implements IStorageLocService {
     @Autowired
     StorageLocationRepository storageLocationRepository;
 
