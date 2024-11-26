@@ -1,9 +1,19 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
+import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.model.Report;
+import com.WarehouseAPI.WarehouseAPI.model.ReportResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ReportRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -11,38 +21,73 @@ import java.util.List;
 public class ReportService implements IReportService{
 
     @Autowired
-    ReportRepository reportRepository;
-    public ReportService(ReportRepository reportRepository){
+    private final ReportRepository reportRepository;
+    private final MongoTemplate mongoTemplate;
+    public ReportService(ReportRepository reportRepository, MongoTemplate mongoTemplate){
         this.reportRepository = reportRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
-    public String addReport(Report report) {
-        reportRepository.save(report);
-        return "Add report, done";
+    public ResponseEntity<String> addReport(ReportResponse report) {
+        try {
+            return ResponseEntity.ok("Add Successfully");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding product", e);
+        }
     }
 
     @Override
-    public String updateReport(String _id, Report report) {
-        reportRepository.save(report);
-        return "Update report, done";
+    public ResponseEntity<String> updateReport(String _id, ReportResponse report) {
+
+        try {
+
+            return ResponseEntity.ok("Update Successfully");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding product", e);
+        }
     }
 
     @Override
-    public String deleteReport(String _id) {
-        reportRepository.deleteById(_id);
-        return "Delete report, done";
+    public ResponseEntity<String> deleteReport(String _id) {
+
+        try {
+            reportRepository.deleteById(_id);
+            return ResponseEntity.ok("Delete Successfully");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding product", e);
+        }
     }
 
     @Override
-    public Report getReport(String _id) {
-        if(reportRepository.findById(_id).isEmpty())
-            return null;
-        return reportRepository.findById(_id).get();
+    public ReportResponse getReport(String _id) {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
+                    Aggregation.lookup("user", "idSender", "_id", "sender"),
+                    Aggregation.unwind("sender", true)
+            );
+            AggregationResults<ReportResponse> result = mongoTemplate.aggregate(
+                    aggregation, "report", ReportResponse.class);
+            return result.getUniqueMappedResult();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting report", e);
+        }
     }
 
+
     @Override
-    public List<Report> getAllReport() {
-        return reportRepository.findAll();
+    public List<ReportResponse> getAllReport() {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.lookup("user", "idSender", "_id", "sender"),
+                    Aggregation.unwind("sender", true)
+            );
+            AggregationResults<ReportResponse> result = mongoTemplate.aggregate(
+                    aggregation, "report", ReportResponse.class);
+            return result.getMappedResults();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting report", e);
+        }
     }
 }

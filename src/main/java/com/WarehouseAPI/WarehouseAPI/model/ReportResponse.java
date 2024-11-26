@@ -1,21 +1,18 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-@Document(collection = "report")
-public class Report {
+public class ReportResponse {
 
-    @Id
-    private String _id;
+    private String id;
 
     private Date timestamp;
 
     private String title;
 
-    private String idSender;
+    private User sender;
 
     private String reportType;
 
@@ -23,14 +20,13 @@ public class Report {
 
     private String status;
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String id) {
+        this.id = id;
     }
-
 
     public Date getTimestamp() {
         return timestamp;
@@ -48,12 +44,12 @@ public class Report {
         this.title = title;
     }
 
-    public String getIdSender() {
-        return idSender;
+    public User getSender() {
+        return sender;
     }
 
-    public void setIdSender(String idSender) {
-        this.idSender = idSender;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 
     public String getReportType() {
