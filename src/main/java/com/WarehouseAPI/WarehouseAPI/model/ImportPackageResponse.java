@@ -13,7 +13,7 @@ public class ImportPackageResponse {
     private boolean statusDone;
     private String note;
     private Supplier supplier;
-    private List<Product> listProducts;
+    private List<ProductResponse> listProducts;
 
     // Getters and Setters
     public String getId() {
@@ -72,11 +72,11 @@ public class ImportPackageResponse {
         this.note = note;
     }
 
-    public List<Product> getListProducts() {
+    public List<ProductResponse> getListProducts() {
         return listProducts;
     }
 
-    public void setListProducts(List<Product> listProducts) {
+    public void setListProducts(List<ProductResponse> listProducts) {
         this.listProducts = listProducts;
     }
 }

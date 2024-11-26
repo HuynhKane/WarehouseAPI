@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.model.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
@@ -26,10 +27,14 @@ public class ImportPackageService implements  IImportPackage{
     @Autowired
     private final ImportPackageRepos importPackageRepos;
     private final MongoTemplate mongoTemplate;
+    private final ProductService productService;
 
-    public ImportPackageService(ImportPackageRepos importPackageRepos, MongoTemplate mongoTemplate) {
+
+    public ImportPackageService(ImportPackageRepos importPackageRepos, MongoTemplate mongoTemplate, ProductService productService) {
         this.importPackageRepos = importPackageRepos;
         this.mongoTemplate = mongoTemplate;
+        this.productService = productService;
+
     }
 
     @Override
@@ -60,7 +65,14 @@ public class ImportPackageService implements  IImportPackage{
             );
             AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
                     aggregation, "importPackage", ImportPackageResponse.class);
-            return result.getUniqueMappedResult();
+
+            ImportPackageResponse importPackage = result.getUniqueMappedResult();
+            List<ProductResponse> listProducts = new ArrayList<>();
+            for (ProductResponse product : importPackage.getListProducts()) {
+                listProducts.add(productService.getProduct(product.getId()));
+            }
+            importPackage.setListProducts(listProducts);
+            return importPackage;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
         }
@@ -79,6 +91,13 @@ public class ImportPackageService implements  IImportPackage{
         AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
                 aggregation, "importPackage", ImportPackageResponse.class);
         List<ImportPackageResponse> importPackages = result.getMappedResults();
+        for (ImportPackageResponse importPackage : importPackages) {
+            List<ProductResponse> listProducts = new ArrayList<>();
+            for (ProductResponse product : importPackage.getListProducts()) {
+                listProducts.add(productService.getProduct(product.getId()));
+            }
+            importPackage.setListProducts(listProducts);
+        }
         return importPackages;
     } catch (Exception e) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
