@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +13,7 @@ public class StorageLocation {
     private String storageLocationName;
 
     private String storageLocationImage;
+
 
     public String get_id() {
         return _id;
