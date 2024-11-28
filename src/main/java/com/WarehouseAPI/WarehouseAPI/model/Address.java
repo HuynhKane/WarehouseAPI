@@ -1,28 +1,20 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
 public class Address {
-    private String idAddress;
+
     private String street;
     private String district;
     private String city;
     private String postalCode;
     private String phone;
 
-    public Address(String idAddress, String street, String district, String city, String postalCode, String phone) {
-        this.idAddress = idAddress;
+    public Address( String street, String district, String city, String postalCode, String phone) {
+
         this.street = street;
         this.district = district;
         this.city = city;
         this.postalCode = postalCode;
         this.phone = phone;
-    }
-
-    public String getIdAddress() {
-        return idAddress;
-    }
-
-    public void setIdAddress(String idAddress) {
-        this.idAddress = idAddress;
     }
 
     public String getStreet() {

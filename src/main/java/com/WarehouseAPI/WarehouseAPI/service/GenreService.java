@@ -4,7 +4,13 @@ import com.WarehouseAPI.WarehouseAPI.model.Genre;
 import com.WarehouseAPI.WarehouseAPI.repository.GenreRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IGenreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +20,11 @@ public class GenreService implements IGenreService {
 
     @Autowired
     GenreRepository genreRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public GenreService(GenreRepository genreRepository){
+    public GenreService(GenreRepository genreRepository, MongoTemplate mongoTemplate){
         this.genreRepository = genreRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -51,6 +59,24 @@ public class GenreService implements IGenreService {
             return null;
         }
         return genreRepository.findById(_id).get();
+    }
+
+
+    @Override
+    public List<Genre> findGenreByName(String value){
+        try {
+            Criteria criteria = Criteria.where("genreName").regex(value, "i");
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(criteria));
+
+            AggregationResults<Genre> results = mongoTemplate.aggregate(
+                    aggregation, "genre", Genre.class);
+            return results.getMappedResults();
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error searching genre", e);
+        }
+
     }
 
     @Override

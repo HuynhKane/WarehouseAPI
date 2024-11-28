@@ -41,7 +41,6 @@ public class ProductService  implements IProductService {
     public ResponseEntity<String> addProduct(ProductResponse productResponse) {
         try {
             Product product = new Product();
-            product.set_id(productResponse.getId());
             product.setProductName(productResponse.getProductName());
             product.setGenreId(new ObjectId(productResponse.getGenre().get_id()));
             product.setQuantity(productResponse.getQuantity());

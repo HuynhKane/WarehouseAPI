@@ -4,6 +4,7 @@ import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
 import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
+import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IImportPackage;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,15 @@ public class ImportPackageService implements IImportPackage {
     private final ImportPackageRepos importPackageRepos;
     private final MongoTemplate mongoTemplate;
     private final ProductService productService;
+    private final ProductRepository productRepository;
 
 
-    public ImportPackageService(ImportPackageRepos importPackageRepos, MongoTemplate mongoTemplate, ProductService productService) {
+    public ImportPackageService(ImportPackageRepos importPackageRepos, MongoTemplate mongoTemplate, ProductService productService, ProductRepository productRepository) {
         this.importPackageRepos = importPackageRepos;
         this.mongoTemplate = mongoTemplate;
         this.productService = productService;
 
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -50,6 +53,9 @@ public class ImportPackageService implements IImportPackage {
             List<ProductResponse> productResponseList = importPackage.getListProducts();
             List<ObjectId> productIdList = new ArrayList<>();
             for (ProductResponse productResponse : productResponseList){
+                if(productRepository.findById(productResponse.getId()).isEmpty()) {
+                    productService.addProduct(productResponse);
+                }
                 productIdList.add(new ObjectId(productResponse.getId()));
             }
             importPackage_save.setListProducts(productIdList);

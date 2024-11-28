@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.Genre;
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IGenreService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,11 @@ public class GenreController {
     @GetMapping("/{id}")
     public Genre getGenreDetails(@PathVariable String id) {
         return genreService.getGenre(id);
+    }
+
+    @GetMapping("/search")
+    public List<Genre> getSearchedGenresDetails(@RequestParam("value") String value){
+        return genreService.findGenreByName(value);
     }
 
     @PostMapping

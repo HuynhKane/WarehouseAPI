@@ -32,10 +32,6 @@ public class Product {
         return _id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
     public ObjectId getSupplierId() {
         return supplierId;
     }

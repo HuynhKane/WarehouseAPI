@@ -1,7 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
 public class Information {
-    private String idInformation;
+
 
     private String firstName;
 
@@ -13,13 +13,6 @@ public class Information {
 
     private String picture;
 
-    public String getIdInformation() {
-        return idInformation;
-    }
-
-    public void setIdInformation(String idInformation) {
-        this.idInformation = idInformation;
-    }
 
     public String getFirstName() {
         return firstName;
