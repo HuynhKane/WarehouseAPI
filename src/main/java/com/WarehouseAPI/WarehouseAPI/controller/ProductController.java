@@ -38,7 +38,6 @@ public class ProductController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching product details", e);
         }
     }
-
     @GetMapping("/sort")
     public List<ProductResponse> getSortedProductDetails(@RequestParam("props") String props, @RequestParam("order") String order) {
         if("asc".equalsIgnoreCase(order)){
@@ -48,6 +47,27 @@ public class ProductController {
         } else
         {
             throw new IllegalArgumentException("Invalid sort order. Use 'asc' or 'desc'.");
+        }
+    }
+    @GetMapping("/filter-by-day")
+    public List<ProductResponse> getProductsByLastUpdatedDateRange(
+            @RequestParam("startDay") String startDay,
+            @RequestParam("endDay") String endDay) {
+        try {
+            return productService.getProductsByLastUpdatedDateRange(startDay, endDay);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching products by date range", e);
+        }
+    }
+    @GetMapping("/filter-by-month")
+    public List<ProductResponse> getProductsByMonth(
+            @RequestParam("year") int year,
+            @RequestParam("month") int month) {
+        try {
+            return productService.getProductsByMonth(year, month);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching products by month", e);
         }
     }
     @GetMapping("/filter")

@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductInStorageLocation;
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -16,4 +17,7 @@ public interface IProductService {
     public List<ProductResponse> getFilteredProducts(String props, String value);
     public List<ProductResponse> getSearchedProducts(String props, String value);
     public List<ProductResponse> getAllProducts();
+    public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay);
+    public List<ProductResponse> getProductsByMonth(int year, int month);
+    public List<ProductInStorageLocation> getProductQuantityByStorageLocation();
 }

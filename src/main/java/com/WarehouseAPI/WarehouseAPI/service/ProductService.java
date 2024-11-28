@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
+import com.WarehouseAPI.WarehouseAPI.model.response.ProductInStorageLocation;
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -220,6 +227,96 @@ public class ProductService  implements IProductService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error searching products", e);
         }
     }
+    @Override
+    public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay) {
+        try {
+
+            LocalDate startDate = LocalDate.parse(startDay);
+            LocalDate endDate = LocalDate.parse(endDay);
+
+            Instant startInstant = startDate.atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant endInstant = endDate.atStartOfDay(ZoneId.of("UTC")).plusDays(1).toInstant();
+            System.out.println(startInstant);
+            System.out.println(endInstant);
+
+            Criteria criteria = Criteria.where("lastUpdated")
+                    .gte(startInstant)
+                    .lt(endInstant);
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(criteria),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
+                    Aggregation.unwind("genre", true)
+            );
+
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            System.out.println(results.getMappedResults());
+            return results.getMappedResults();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting products by date range", e);
+        }
+    }
+    @Override
+    public List<ProductResponse> getProductsByMonth(int year, int month) {
+        try {
+            LocalDate startDate = LocalDate.of(year, month, 1);
+            LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+            Instant startInstant = startDate.atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant endInstant = endDate.atStartOfDay(ZoneId.of("UTC")).plusDays(1).toInstant();
+
+            Criteria criteria = Criteria.where("lastUpdated")
+                    .gte(startInstant)
+                    .lt(endInstant);
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(criteria),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
+                    Aggregation.unwind("genre", true)
+            );
+
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductResponse.class);
+            return results.getMappedResults();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching products by month", e);
+        }
+    }
+
+
+    @Override
+    public List<ProductInStorageLocation> getProductQuantityByStorageLocation() {
+        try {
+            GroupOperation groupByStorageLocationAndSumQuantity = Aggregation.group("storageLocationId")
+                    .sum("quantity").as("totalQuantity");
+
+            ProjectionOperation projectToProductQuantityByStorageLocation = Aggregation.project()
+                    .and("storageLocationId").as("storageLocationId")
+                    .and("totalQuantity").as("totalQuantity");
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                    groupByStorageLocationAndSumQuantity,
+                    projectToProductQuantityByStorageLocation
+            );
+
+            AggregationResults<ProductInStorageLocation> results = mongoTemplate.aggregate(
+                    aggregation, "product", ProductInStorageLocation.class);
+            return results.getMappedResults();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product quantity by storage location", e);
+        }
+    }
+
 
 }
 
