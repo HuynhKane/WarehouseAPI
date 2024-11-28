@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
+import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStorageLocService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,11 @@ public class StorageLocationController {
         return storageLocService.getStoLoc(id);
     }
 
+
+    @GetMapping("/search")
+    public List<StorageLocation> getSearchedStoLocDetails(@RequestParam("value") String value){
+        return storageLocService.findStoLocByName(value);
+    }
 
     @GetMapping("/unused")
     public ResponseEntity<List<StorageLocation>> findUnusedStorageLocations() {

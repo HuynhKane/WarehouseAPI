@@ -4,8 +4,6 @@ import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.repository.StorageLocationRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStorageLocService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -13,12 +11,11 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.ObjectInput;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,6 +57,22 @@ public class StorageLocationService implements IStorageLocService {
     @Override
     public List<StorageLocation> getAllStoloc() {
         return storageLocationRepository.findAll();
+    }
+    @Override
+    public List<StorageLocation> findStoLocByName(String value){
+        try {
+            Criteria criteria = Criteria.where("storageLocationName").regex(value, "i");
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(criteria));
+
+            AggregationResults<StorageLocation> results = mongoTemplate.aggregate(
+                    aggregation, "storageLocation", StorageLocation.class);
+            return results.getMappedResults();
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error searching storage", e);
+        }
+
     }
 
     @Override

@@ -19,5 +19,4 @@ public interface IProductService {
     public List<ProductResponse> getAllProducts();
     public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay);
     public List<ProductResponse> getProductsByMonth(int year, int month);
-    public List<ProductInStorageLocation> getProductQuantityByStorageLocation();
 }
