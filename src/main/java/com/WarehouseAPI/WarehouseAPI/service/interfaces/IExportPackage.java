@@ -14,4 +14,6 @@ public interface IExportPackage {
     public ResponseEntity<ExportPackage> deleteExportPackage(String id);
     public ExportPackageResponse getExportPackage(String _id);
     public List<ExportPackageResponse> getAllExportPackages();
+    public  List<ExportPackageResponse> getAllPendingPackages();
+    public List<ExportPackageResponse> getAllDonePackages();
 }

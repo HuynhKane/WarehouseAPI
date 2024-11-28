@@ -8,9 +8,12 @@ import java.util.List;
 
 public interface IImportPackage {
 
-    public ResponseEntity<ImportPackage> addImportPackage(ImportPackage importPackage);
-    public ResponseEntity<ImportPackage> updateImportPackage(String _id, ImportPackage importPackage);
-    public ResponseEntity<ImportPackage> deleteImportPackage(String id);
+    public ResponseEntity<ImportPackageResponse> addImportPackage(ImportPackageResponse importPackage);
+    public ResponseEntity<ImportPackageResponse> updateImportPackage(String _id, ImportPackageResponse importPackage);
+    public ResponseEntity<ImportPackageResponse> deleteImportPackage(String id);
     public ImportPackageResponse getImportPackage(String _id);
     public List<ImportPackageResponse> getAllImportPackages();
+    public List<ImportPackageResponse> getAllPendingPackages();
+    public List<ImportPackageResponse> getAllDonePackages();
+    public List<ImportPackageResponse> getAllCancelledPackages();
 }

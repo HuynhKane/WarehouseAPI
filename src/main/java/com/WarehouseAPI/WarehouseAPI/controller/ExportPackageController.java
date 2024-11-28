@@ -36,6 +36,17 @@ public class ExportPackageController {
         return new ResponseEntity<>(exportPackages, HttpStatus.OK);
     }
 
+    @GetMapping("/pending")
+    public ResponseEntity<List<ExportPackageResponse>> getAllPendingExportPackages() {
+        List<ExportPackageResponse> exportPackages = exportPackageService.getAllPendingPackages();
+        return new ResponseEntity<>(exportPackages, HttpStatus.OK);
+    }
+    @GetMapping("/done")
+    public ResponseEntity<List<ExportPackageResponse>> getAllDoneExportPackages() {
+        List<ExportPackageResponse> exportPackages = exportPackageService.getAllDonePackages();
+        return new ResponseEntity<>(exportPackages, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ExportPackageResponse> getExportPackageById(@PathVariable String id) {
         ExportPackageResponse exportPackage = exportPackageService.getExportPackage(id);

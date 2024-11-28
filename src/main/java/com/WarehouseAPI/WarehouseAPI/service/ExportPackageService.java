@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ExportPackageService implements IExportPackage {
@@ -38,16 +39,66 @@ public class ExportPackageService implements IExportPackage {
 
     @Override
     public ResponseEntity<ExportPackage> addExportPackage(ExportPackageResponse exportPackage) {
+        try{
+            ExportPackage exportPackage_save = new ExportPackage();
+            exportPackage_save.setPackageName(exportPackage.getPackageName());
+            exportPackage_save.setExportDate(exportPackage.getExportDate());
+            exportPackage_save.setNote(exportPackage.getNote());
+            exportPackage_save.setIdSender(new ObjectId(exportPackage.getSender().get_id()));
+            exportPackage_save.setCustomerId(new ObjectId(exportPackage.getCustomer().getId()));
+            exportPackage_save.setStatusDone(exportPackage.isStatusDone());
+            List<ProductResponse> productResponseList = exportPackage.getListProducts();
+            List<ObjectId> productIdList = new ArrayList<>();
+            for (ProductResponse productResponse : productResponseList){
+                productIdList.add(new ObjectId(productResponse.getId()));
+            }
+            exportPackage_save.setListProducts(productIdList);
+            exportPackageRepos.save(exportPackage_save);
+
+
+        }catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error adding export package", e);
+        }
         return null;
     }
 
     @Override
     public ResponseEntity<ExportPackage> updateExportPackage(String _id, ExportPackageResponse exportPackage) {
-        return null;
+        try {
+            Optional<ExportPackage> existingPackage = exportPackageRepos.findById(_id);
+            if (existingPackage.isPresent()) {
+                ExportPackage exportPackage_save = existingPackage.get();
+                exportPackage_save.setPackageName(exportPackage.getPackageName());
+                exportPackage_save.setExportDate(exportPackage.getExportDate());
+                exportPackage_save.setDeliveryMethod(exportPackage.getDeliveryMethod());
+                exportPackage_save.setNote(exportPackage.getNote());
+                exportPackage_save.setIdSender(new ObjectId(exportPackage.getSender().get_id()));
+                exportPackage_save.setCustomerId(new ObjectId(exportPackage.getCustomer().getId()));
+                exportPackage_save.setStatusDone(exportPackage.isStatusDone());
+                List<ProductResponse> productResponseList = exportPackage.getListProducts();
+                List<ObjectId> productIdList = new ArrayList<>();
+                for (ProductResponse productResponse : productResponseList){
+                    productIdList.add(new ObjectId(productResponse.getId()));
+                }
+                exportPackage_save.setListProducts(productIdList);
+                exportPackageRepos.save(exportPackage_save);
+                return ResponseEntity.ok(exportPackage_save);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating export package", e);
+        }
     }
 
     @Override
     public ResponseEntity<ExportPackage> deleteExportPackage(String id) {
+        try {
+            exportPackageRepos.deleteById(id);
+        }
+        catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error deleting export package", e);
+        }
         return null;
     }
 
@@ -100,6 +151,36 @@ public class ExportPackageService implements IExportPackage {
             return exportPackages;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
+        }
+    }
+
+    @Override
+    public List<ExportPackageResponse> getAllPendingPackages() {
+        try {
+            List<ExportPackageResponse> pendingList = new ArrayList<>();
+            for (ExportPackageResponse exportPackage : getAllExportPackages()) {
+                if (!exportPackage.isStatusDone()) {
+                    pendingList.add(exportPackage);
+                }
+            }
+            return pendingList;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
+        }
+    }
+
+    @Override
+    public List<ExportPackageResponse> getAllDonePackages() {
+        try {
+            List<ExportPackageResponse> doneList = new ArrayList<>();
+            for (ExportPackageResponse exportPackage : getAllExportPackages()) {
+                if (exportPackage.isStatusDone()) {
+                    doneList.add(exportPackage);
+                }
+            }
+            return doneList;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
         }
     }
 }

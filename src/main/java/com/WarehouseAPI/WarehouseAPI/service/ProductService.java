@@ -44,6 +44,7 @@ public class ProductService  implements IProductService {
             product.setSupplierId(new ObjectId(productResponse.getSupplier().get_id()));
             product.setStorageLocationId(new ObjectId(productResponse.getStorageLocation().get_id()));
             product.setImage(productResponse.getImage());
+            product.setLastUpdated(productResponse.getLastUpdated());
             product.setInStock(productResponse.isInStock());
             productRepository.save(product);
             return ResponseEntity.ok("Add Successfully");

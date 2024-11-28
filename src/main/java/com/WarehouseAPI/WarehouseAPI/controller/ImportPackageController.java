@@ -3,6 +3,7 @@ package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
 import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.service.ImportPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,14 +22,24 @@ public class ImportPackageController {
         this.importPackageService = importPackageService;
     }
     @PostMapping
-    public ResponseEntity<ImportPackage> createImportPackage(@RequestBody ImportPackage importPackage) {
-        ResponseEntity<ImportPackage> createdImportPackage = importPackageService.addImportPackage(importPackage);
+    public ResponseEntity<ImportPackageResponse> createImportPackage(@RequestBody ImportPackageResponse importPackage) {
+        ResponseEntity<ImportPackageResponse> createdImportPackage = importPackageService.addImportPackage(importPackage);
         return createdImportPackage;
     }
 
     @GetMapping
     public ResponseEntity<List<ImportPackageResponse>> getAllImportPackages() {
         List<ImportPackageResponse> importPackages = importPackageService.getAllImportPackages();
+        return new ResponseEntity<>(importPackages, HttpStatus.OK);
+    }
+    @GetMapping("/pending")
+    public ResponseEntity<List<ImportPackageResponse>> getAllPendingPackages() {
+        List<ImportPackageResponse> importPackages = importPackageService.getAllPendingPackages();
+        return new ResponseEntity<>(importPackages, HttpStatus.OK);
+    }
+    @GetMapping("/done")
+    public ResponseEntity<List<ImportPackageResponse>> getAllDonePackages() {
+        List<ImportPackageResponse> importPackages = importPackageService.getAllDonePackages();
         return new ResponseEntity<>(importPackages, HttpStatus.OK);
     }
 
@@ -39,8 +50,8 @@ public class ImportPackageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ImportPackage> updateImportPackage(@PathVariable String id, @RequestBody ImportPackage importPackage) {
-        ResponseEntity<ImportPackage> updatedImportPackage = importPackageService.updateImportPackage( id, importPackage);
+    public ResponseEntity<ImportPackageResponse> updateImportPackage(@PathVariable String id, @RequestBody ImportPackageResponse importPackage) {
+        ResponseEntity<ImportPackageResponse> updatedImportPackage = importPackageService.updateImportPackage( id, importPackage);
         return updatedImportPackage;
     }
 

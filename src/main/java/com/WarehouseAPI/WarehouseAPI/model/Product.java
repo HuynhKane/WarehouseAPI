@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Document(collection = "product")
 public class Product {
@@ -24,7 +25,7 @@ public class Product {
     private boolean isInStock;
     @Field("storageLocationId")
     private ObjectId storageLocationId;
-    private LocalDateTime lastUpdated;
+    private Date lastUpdated;
     private String image;
 
     public String get_id() {
@@ -109,11 +110,11 @@ public class Product {
     }
 
 
-    public LocalDateTime getLastUpdated() {
+    public Date getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(LocalDateTime lastUpdated) {
+    public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 

@@ -6,6 +6,7 @@ import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class ProductResponse {
     private String id;
@@ -18,7 +19,7 @@ public class ProductResponse {
     private Supplier supplier;
     private boolean isInStock;
     private StorageLocation storageLocation;
-    private LocalDateTime lastUpdated;
+    private Date lastUpdated;
     private String image;
 
     public ProductResponse() {
@@ -104,11 +105,12 @@ public class ProductResponse {
         this.storageLocation = storageLocation;
     }
 
-    public LocalDateTime getLastUpdated() {
+
+    public Date getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(LocalDateTime lastUpdated) {
+    public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
