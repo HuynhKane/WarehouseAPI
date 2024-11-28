@@ -26,16 +26,15 @@ public class UserService implements IUserService {
 
     @Override
     public String updateUser(String _id, User user) {
-        Optional<User> existingUser = userRepository.findById(_id);
-        if(existingUser.isPresent()){
-            User existUser = existingUser.get();
-            existUser.setUsername(user.getUsername());
-            existUser.setPasswordHash(user.getPasswordHash());
-            existUser.setInformation(user.getInformation());
-            userRepository.save(existUser);
-        }
-        return "Update user, done";
+        User existingUser = userRepository.findById(_id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + _id));
+        existingUser.setUsername(user.getUsername());
+        existingUser.setPasswordHash(user.getPasswordHash());
+        existingUser.setInformation(user.getInformation());
+        userRepository.save(existingUser);
+        return "User updated successfully.";
     }
+
 
     @Override
     public String deleteUser(String _id) {
@@ -49,6 +48,13 @@ public class UserService implements IUserService {
             return null;
         return userRepository.findById(_id).get();
     }
+
+    public User getUserByUsername(String username) {
+        if (userRepository.findByUsername(username).getUsername().isEmpty())
+            return null;
+        return userRepository.findByUsername(username);
+    }
+
 
     @Override
     public List<User> getAllUser() {

@@ -19,10 +19,6 @@ public class User {
         return _id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -46,4 +42,6 @@ public class User {
     public void setInformation(Information information) {
         this.information = information;
     }
+
+
 }

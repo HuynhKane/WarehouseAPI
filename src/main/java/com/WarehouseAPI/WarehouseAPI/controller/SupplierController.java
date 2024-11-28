@@ -29,7 +29,7 @@ public class SupplierController {
 
 
     @GetMapping("/search")
-    public List<Supplier> getSearchedGenresDetails(@RequestParam("value") String value){
+    public List<Supplier> getSearchedSuppliersDetails(@RequestParam("value") String value){
         return supplierService.findSupplierByName(value);
     }
 
