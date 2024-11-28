@@ -11,5 +11,8 @@ public interface IStorageLocService {
     public String deleteStoLoc(String _id);
     public StorageLocation getStoLoc(String _id);
     public List<StorageLocation> getAllStoloc();
+
+    List<StorageLocation> findStoLocByName(String value);
+
     public List<StorageLocation> getEmptyStoLoc();
 }

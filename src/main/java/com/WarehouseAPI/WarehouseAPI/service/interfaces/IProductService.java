@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductInStorageLocation;
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.StorageLocationSummary;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface IProductService {
     public List<ProductResponse> getAllProducts();
     public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay);
     public List<ProductResponse> getProductsByMonth(int year, int month);
+    public List<StorageLocationSummary> getStockSummaryByLocation();
 }

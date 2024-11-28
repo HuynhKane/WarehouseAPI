@@ -3,14 +3,14 @@ package com.WarehouseAPI.WarehouseAPI.model.response;
 import org.bson.types.ObjectId;
 
 public class ProductInStorageLocation {
-    private ObjectId storageLocationId;
+    private String storageLocationId;
     private Long totalInStock;
 
-    public ObjectId getStorageLocationId() {
+    public String getStorageLocationId() {
         return storageLocationId;
     }
 
-    public void setStorageLocationId(ObjectId storageLocationId) {
+    public void setStorageLocationId(String storageLocationId) {
         this.storageLocationId = storageLocationId;
     }
 

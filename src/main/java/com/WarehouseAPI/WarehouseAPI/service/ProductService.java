@@ -1,17 +1,16 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
+import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductInStorageLocation;
 import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.response.StorageLocationSummary;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,6 +32,8 @@ public class ProductService  implements IProductService {
     @Autowired
     private final ProductRepository productRepository;
     private final MongoTemplate mongoTemplate;
+    @Autowired
+    private StorageLocationService storageLocationService;
 
     public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate){
         this.productRepository = productRepository;
@@ -292,31 +295,9 @@ public class ProductService  implements IProductService {
         }
     }
 
-
-    @Override
-    public List<ProductInStorageLocation> getProductQuantityByStorageLocation() {
-        try {
-            GroupOperation groupByStorageLocationAndSumQuantity = Aggregation.group("storageLocationId")
-                    .sum("quantity").as("totalQuantity");
-
-            ProjectionOperation projectToProductQuantityByStorageLocation = Aggregation.project()
-                    .and("storageLocationId").as("storageLocationId")
-                    .and("totalQuantity").as("totalQuantity");
-
-            Aggregation aggregation = Aggregation.newAggregation(
-                    groupByStorageLocationAndSumQuantity,
-                    projectToProductQuantityByStorageLocation
-            );
-
-            AggregationResults<ProductInStorageLocation> results = mongoTemplate.aggregate(
-                    aggregation, "product", ProductInStorageLocation.class);
-            return results.getMappedResults();
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product quantity by storage location", e);
-        }
+    public List<StorageLocationSummary> getStockSummaryByLocation() {
+        return productRepository.getStockSummaryByLocation();
     }
-
-
 }
 
 
