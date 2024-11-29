@@ -1,6 +1,4 @@
-package com.WarehouseAPI.WarehouseAPI.model.response;
-
-import org.bson.types.ObjectId;
+package com.WarehouseAPI.WarehouseAPI.dto;
 
 public class ProductInStorageLocation {
     private String storageLocationId;

@@ -37,6 +37,9 @@ public class AuthController {
             String token = jwtUtils.generateToken(username);
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
+            response.put("id", user.get_id().toString());
+            response.put("role", user.getInformation().getRole().toString());
+
             return response;
         } else {
             throw new RuntimeException("Invalid username or password");

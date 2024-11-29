@@ -15,7 +15,7 @@ public class ImportPackage {
     private LocalDateTime importDate;
     @Field("idReceiver")
     private ObjectId idReceiver;
-    private boolean statusDone;
+    private String statusDone;
     private String note;
     @Field("listProducts")
     private List<ObjectId> listProducts;
@@ -45,15 +45,6 @@ public class ImportPackage {
         this.importDate = importDate;
     }
 
-
-    public boolean isStatusDone() {
-        return statusDone;
-    }
-
-    public void setStatusDone(boolean statusDone) {
-        this.statusDone = statusDone;
-    }
-
     public String getNote() {
         return note;
     }
@@ -61,7 +52,6 @@ public class ImportPackage {
     public void setNote(String note) {
         this.note = note;
     }
-
 
     public List<ObjectId> getListProducts() {
         return listProducts;
@@ -73,6 +63,14 @@ public class ImportPackage {
 
     public ObjectId getIdReceiver() {
         return idReceiver;
+    }
+
+    public String getStatusDone() {
+        return statusDone;
+    }
+
+    public void setStatusDone(String statusDone) {
+        this.statusDone = statusDone;
     }
 
     public void setIdReceiver(ObjectId idReceiver) {

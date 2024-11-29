@@ -13,5 +13,5 @@ public interface INotificationService {
     public String deleteNotification(String _id);
     public Optional<Notification> getNotification(String _id);
     public List<Notification> getAllNotification();
-    public void sendNotificationToAll(String message);
+    public void sendNotification(Notification notification);
 }

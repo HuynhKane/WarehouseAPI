@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IImportPackage {
 
-    public ResponseEntity<ImportPackageResponse> addImportPackage(ImportPackageResponse importPackage);
+    public ResponseEntity<ImportPackageResponse> addPendingImportPackage(ImportPackageResponse importPackage);
     public ResponseEntity<ImportPackageResponse> updateImportPackage(String _id, ImportPackageResponse importPackage);
     public ResponseEntity<ImportPackageResponse> deleteImportPackage(String id);
     public ImportPackageResponse getImportPackage(String _id);

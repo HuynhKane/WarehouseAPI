@@ -1,4 +1,5 @@
 package com.WarehouseAPI.WarehouseAPI.service;
+import com.WarehouseAPI.WarehouseAPI.model.Notification;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
@@ -13,14 +14,18 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -29,17 +34,34 @@ public class ProductService  implements IProductService {
     @Autowired
     private final ProductRepository productRepository;
     private final MongoTemplate mongoTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
+    private NotificationService notificationService;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
     @Autowired
     private StorageLocationService storageLocationService;
 
-    public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate){
+    public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate, SimpMessagingTemplate messagingTemplate, NotificationService notificationService){
         this.productRepository = productRepository;
         this.mongoTemplate = mongoTemplate;
+        this.messagingTemplate = messagingTemplate;
+        this.notificationService = notificationService;
     }
 
     @Override
     public ResponseEntity<ProductResponse> addProduct(ProductResponse productResponse) {
         try {
+
+            executorService.submit(() -> {
+                // Task 1: Notification creation and sending
+                Notification notification = new Notification();
+                notification.setTitle("New Product Added");
+                notification.setDescription("Product: " + productResponse.getProductName() + " has been added successfully.");
+                notification.setType("INFO");
+                notification.setTimestamp(new Date());
+                notificationService.sendNotification(notification);
+            });
+            executorService.submit(() -> {
             Product product = new Product();
             product.setProductName(productResponse.getProductName());
             product.setGenreId(new ObjectId(productResponse.getGenre().get_id()));
@@ -52,22 +74,25 @@ public class ProductService  implements IProductService {
             product.setImage(productResponse.getImage());
             product.setLastUpdated(productResponse.getLastUpdated());
             product.setInStock(productResponse.isInStock());
-            // Lưu sản phẩm và lấy đối tượng đã lưu
+
             Product savedProduct = productRepository.save(product);
 
-            // Tạo ProductResponse từ đối tượng đã lưu
+
+
             ProductResponse savedProductResponse = new ProductResponse();
             savedProductResponse.setId(savedProduct.get_id());
             savedProductResponse.setProductName(savedProduct.getProductName());
             savedProductResponse.setQuantity(savedProduct.getQuantity());
             savedProductResponse.setImportPrice(savedProduct.getImportPrice());
             savedProductResponse.setSellingPrice(savedProduct.getSellingPrice());
-            // Thêm các trường khác nếu cần
+
 
             return ResponseEntity.ok(savedProductResponse);
+            });
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding product", e);
         }
+        return null;
     }
 
     @Override

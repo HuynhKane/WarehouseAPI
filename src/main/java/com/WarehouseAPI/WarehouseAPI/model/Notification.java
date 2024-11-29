@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +13,8 @@ public class Notification {
     private String title;
     private String description;
     private String type;
+
+    @CreatedDate
     private Date timestamp;
 
     public String getId() {
@@ -52,5 +55,9 @@ public class Notification {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public enum NotificationType {
+        INFO, WARNING, ERROR
     }
 }

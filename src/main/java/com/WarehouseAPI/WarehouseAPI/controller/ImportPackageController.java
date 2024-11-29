@@ -21,7 +21,7 @@ public class ImportPackageController {
     }
     @PostMapping
     public ResponseEntity<ImportPackageResponse> createImportPackage(@RequestBody ImportPackageResponse importPackage) {
-        ResponseEntity<ImportPackageResponse> createdImportPackage = importPackageService.addImportPackage(importPackage);
+        ResponseEntity<ImportPackageResponse> createdImportPackage = importPackageService.addPendingImportPackage(importPackage);
         return createdImportPackage;
     }
 

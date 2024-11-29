@@ -9,7 +9,7 @@ public class ImportPackageResponse {
     private String packageName;
     private LocalDateTime importDate;
     private User receiver;
-    private boolean statusDone;
+    private String statusDone;
     private String note;
     private List<ProductResponse> listProducts;
 
@@ -46,11 +46,11 @@ public class ImportPackageResponse {
         this.receiver = receiver;
     }
 
-    public boolean isStatusDone() {
+    public String getStatusDone() {
         return statusDone;
     }
 
-    public void setStatusDone(boolean statusDone) {
+    public void setStatusDone(String statusDone) {
         this.statusDone = statusDone;
     }
 

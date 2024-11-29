@@ -1,4 +1,4 @@
-package com.WarehouseAPI.WarehouseAPI.model.response;
+package com.WarehouseAPI.WarehouseAPI.dto;
 
 public class StorageLocationSummary {
     private String storageLocationId;

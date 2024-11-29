@@ -4,10 +4,12 @@ import com.WarehouseAPI.WarehouseAPI.model.User;
 import com.WarehouseAPI.WarehouseAPI.repository.UserRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class UserService implements IUserService {
@@ -18,11 +20,18 @@ public class UserService implements IUserService {
     public UserService(UserRepository userRepository){
         this.userRepository = userRepository;
     }
+
+
     @Override
-    public String addUser(User user) {
+    public ResponseEntity<String> addUser(User user) {
+        Optional<User> existingUser = Optional.ofNullable(userRepository.findByUsername(user.getUsername()));
+        if (existingUser.isPresent()) {
+            return new ResponseEntity<>("Username is already taken.", HttpStatus.CONFLICT);
+        }
         userRepository.save(user);
-        return "Add user, done";
+        return new ResponseEntity<>("User added successfully.", HttpStatus.CREATED);
     }
+
 
     @Override
     public String updateUser(String _id, User user) {
@@ -54,7 +63,6 @@ public class UserService implements IUserService {
             return null;
         return userRepository.findByUsername(username);
     }
-
 
     @Override
     public List<User> getAllUser() {
