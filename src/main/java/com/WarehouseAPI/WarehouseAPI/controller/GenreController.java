@@ -1,7 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.model.Genre;
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IGenreService;
 import org.springframework.web.bind.annotation.*;
 

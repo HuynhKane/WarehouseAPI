@@ -1,15 +1,14 @@
 package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductInStorageLocation;
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
-import com.WarehouseAPI.WarehouseAPI.model.response.StorageLocationSummary;
+import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 
 public interface IProductService {
-    public ResponseEntity<String> addProduct(ProductResponse productResponse);
+    public ResponseEntity<ProductResponse> addProduct(ProductResponse productResponse);
     public ResponseEntity<String> updateProduct(String _id, ProductResponse updatedProduct);
     public ResponseEntity<String> deleteProduct(String idProduct);
     public ProductResponse getProduct(String _id);

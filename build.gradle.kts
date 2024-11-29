@@ -34,6 +34,15 @@ dependencies {
 	implementation ("io.jsonwebtoken:jjwt-api:0.11.5")
 	implementation ("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation ("io.jsonwebtoken:jjwt-jackson:0.11.5")
+	// Spring Boot WebSocket starter
+	implementation ("org.springframework.boot:spring-boot-starter-websocket")
+
+	// https://mvnrepository.com/artifact/org.springframework/spring-messaging
+	implementation("org.springframework:spring-messaging:6.1.12")
+
+
+	// Spring Boot Test for testing
+	testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.withType<Test> {

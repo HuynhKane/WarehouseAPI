@@ -1,11 +1,9 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.response.ExportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
-import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IExportPackage;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;

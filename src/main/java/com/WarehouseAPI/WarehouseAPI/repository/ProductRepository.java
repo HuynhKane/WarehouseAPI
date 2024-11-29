@@ -1,11 +1,9 @@
 package com.WarehouseAPI.WarehouseAPI.repository;
 
 import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.response.StorageLocationSummary;
-import org.bson.types.ObjectId;
+import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 

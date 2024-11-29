@@ -1,6 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
-import com.WarehouseAPI.WarehouseAPI.model.response.ReportResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ReportResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

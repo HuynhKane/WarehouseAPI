@@ -1,5 +1,4 @@
-package com.WarehouseAPI.WarehouseAPI.model.response;
-import com.WarehouseAPI.WarehouseAPI.model.Supplier;
+package com.WarehouseAPI.WarehouseAPI.dto;
 import com.WarehouseAPI.WarehouseAPI.model.User;
 
 import java.time.LocalDateTime;
@@ -12,7 +11,6 @@ public class ImportPackageResponse {
     private User receiver;
     private boolean statusDone;
     private String note;
-    private Supplier supplier;
     private List<ProductResponse> listProducts;
 
     // Getters and Setters
@@ -46,14 +44,6 @@ public class ImportPackageResponse {
 
     public void setReceiver(User receiver) {
         this.receiver = receiver;
-    }
-
-    public Supplier getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(Supplier supplier) {
-        this.supplier = supplier;
     }
 
     public boolean isStatusDone() {

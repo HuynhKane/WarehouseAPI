@@ -1,6 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,14 +82,14 @@ public class ProductController {
     @PostMapping
     public String addProductDetails(@RequestBody ProductResponse product) {
         productService.addProduct(product);
-        return "Product added successfully";
+        return null;
     }
     @PostMapping("/addList")
     public String addProductsDetails(@RequestBody List<ProductResponse> products) {
         for (ProductResponse product : products) {
             productService.addProduct(product);
         }
-        return "List product added successfully";
+        return null;
     }
 
     @PutMapping("/{id}")

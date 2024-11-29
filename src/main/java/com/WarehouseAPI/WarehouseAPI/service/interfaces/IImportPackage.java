@@ -1,7 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
-import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ImportPackageResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

@@ -17,8 +17,6 @@ public class ImportPackage {
     private ObjectId idReceiver;
     private boolean statusDone;
     private String note;
-    @Field("supplierId")
-    private ObjectId supplierId;
     @Field("listProducts")
     private List<ObjectId> listProducts;
 
@@ -81,11 +79,4 @@ public class ImportPackage {
         this.idReceiver = idReceiver;
     }
 
-    public ObjectId getSupplierId() {
-        return supplierId;
-    }
-
-    public void setSupplierId(ObjectId supplierId) {
-        this.supplierId = supplierId;
-    }
 }

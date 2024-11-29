@@ -1,9 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductInStorageLocation;
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
-import com.WarehouseAPI.WarehouseAPI.model.response.StorageLocationSummary;
+import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 import org.bson.types.ObjectId;
@@ -21,11 +19,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+
+import static org.springframework.http.ResponseEntity.ok;
 
 @Service
 public class ProductService  implements IProductService {
@@ -41,7 +38,7 @@ public class ProductService  implements IProductService {
     }
 
     @Override
-    public ResponseEntity<String> addProduct(ProductResponse productResponse) {
+    public ResponseEntity<ProductResponse> addProduct(ProductResponse productResponse) {
         try {
             Product product = new Product();
             product.setProductName(productResponse.getProductName());
@@ -55,8 +52,19 @@ public class ProductService  implements IProductService {
             product.setImage(productResponse.getImage());
             product.setLastUpdated(productResponse.getLastUpdated());
             product.setInStock(productResponse.isInStock());
-            productRepository.save(product);
-            return ResponseEntity.ok("Add Successfully");
+            // Lưu sản phẩm và lấy đối tượng đã lưu
+            Product savedProduct = productRepository.save(product);
+
+            // Tạo ProductResponse từ đối tượng đã lưu
+            ProductResponse savedProductResponse = new ProductResponse();
+            savedProductResponse.setId(savedProduct.get_id());
+            savedProductResponse.setProductName(savedProduct.getProductName());
+            savedProductResponse.setQuantity(savedProduct.getQuantity());
+            savedProductResponse.setImportPrice(savedProduct.getImportPrice());
+            savedProductResponse.setSellingPrice(savedProduct.getSellingPrice());
+            // Thêm các trường khác nếu cần
+
+            return ResponseEntity.ok(savedProductResponse);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding product", e);
         }
@@ -79,7 +87,7 @@ public class ProductService  implements IProductService {
                 if (updatedProduct.getLastUpdated() != null) existingProduct.setLastUpdated(updatedProduct.getLastUpdated());
                 if (updatedProduct.getImage() != null) existingProduct.setImage(updatedProduct.getImage());
                 productRepository.save(existingProduct);
-                return ResponseEntity.ok("Update Successful");
+                return ok("Update Successful");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
             }
@@ -93,7 +101,7 @@ public class ProductService  implements IProductService {
     public ResponseEntity<String> deleteProduct(String idProduct) {
         try {
             productRepository.deleteById(idProduct);
-            return ResponseEntity.ok("Delete Successfully");
+            return ok("Delete Successfully");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error deleting product", e);
         }

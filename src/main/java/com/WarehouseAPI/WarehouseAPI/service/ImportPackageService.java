@@ -1,8 +1,8 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.model.response.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IImportPackage;
@@ -48,19 +48,25 @@ public class ImportPackageService implements IImportPackage {
             importPackage_save.setImportDate(importPackage.getImportDate());
             importPackage_save.setNote(importPackage.getNote());
             importPackage_save.setIdReceiver(new ObjectId(importPackage.getReceiver().get_id()));
-            importPackage_save.setSupplierId(new ObjectId(importPackage.getSupplier().get_id()));
             importPackage_save.setStatusDone(importPackage.isStatusDone());
             List<ProductResponse> productResponseList = importPackage.getListProducts();
             List<ObjectId> productIdList = new ArrayList<>();
             for (ProductResponse productResponse : productResponseList){
-                if(productRepository.findById(productResponse.getId()).isEmpty()) {
-                    productService.addProduct(productResponse);
+                if (productResponse.getId() == null || productResponse.getId().isEmpty()) {
+                    // Add the product and get the newly created product
+                    ResponseEntity<ProductResponse> addedProductResponse = productService.addProduct(productResponse);
+                    ProductResponse addedProduct = addedProductResponse.getBody();
+
+                    if (addedProduct != null && addedProduct.getId() != null) {
+                        productIdList.add(new ObjectId(addedProduct.getId()));
+                    }
+                } else {
+                    productIdList.add(new ObjectId(productResponse.getId()));
                 }
-                productIdList.add(new ObjectId(productResponse.getId()));
             }
             importPackage_save.setListProducts(productIdList);
             importPackageRepos.save(importPackage_save);
-
+            System.out.println(importPackage_save);
 
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error adding import package", e);
@@ -78,7 +84,6 @@ public class ImportPackageService implements IImportPackage {
                 importPackage_save.setImportDate(importPackage.getImportDate());
                 importPackage_save.setNote(importPackage.getNote());
                 importPackage_save.setIdReceiver(new ObjectId(importPackage.getReceiver().get_id()));
-                importPackage_save.setSupplierId(new ObjectId(importPackage.getSupplier().get_id()));
                 importPackage_save.setStatusDone(importPackage.isStatusDone());
                 List<ProductResponse> productResponseList = importPackage.getListProducts();
                 List<ObjectId> productIdList = new ArrayList<>();
@@ -113,10 +118,9 @@ public class ImportPackageService implements IImportPackage {
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
                     Aggregation.lookup("user", "idReceiver", "_id", "receiver"),
-                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
                     Aggregation.lookup("product", "listProducts", "_id", "listProducts"),
-                    Aggregation.unwind("receiver", true),
-                    Aggregation.unwind("supplier", true)
+                    Aggregation.unwind("receiver", true)
+
             );
             AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
                     aggregation, "importPackage", ImportPackageResponse.class);
@@ -138,10 +142,9 @@ public class ImportPackageService implements IImportPackage {
             try {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.lookup("user", "idReceiver", "_id", "receiver"),
-                Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
                 Aggregation.lookup("product", "listProducts", "_id", "listProducts"),
-                Aggregation.unwind("receiver", true),
-                Aggregation.unwind("supplier", true)
+                Aggregation.unwind("receiver", true)
+
         );
         AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
                 aggregation, "importPackage", ImportPackageResponse.class);

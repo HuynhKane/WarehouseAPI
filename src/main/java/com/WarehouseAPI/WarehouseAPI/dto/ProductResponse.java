@@ -1,11 +1,10 @@
-package com.WarehouseAPI.WarehouseAPI.model.response;
+package com.WarehouseAPI.WarehouseAPI.dto;
 
 import com.WarehouseAPI.WarehouseAPI.model.Genre;
 import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 public class ProductResponse {

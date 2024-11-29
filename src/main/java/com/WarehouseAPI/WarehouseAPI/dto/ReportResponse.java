@@ -1,4 +1,4 @@
-package com.WarehouseAPI.WarehouseAPI.model.response;
+package com.WarehouseAPI.WarehouseAPI.dto;
 
 import com.WarehouseAPI.WarehouseAPI.model.User;
 

@@ -1,6 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.model.response.ReportResponse;
+import com.WarehouseAPI.WarehouseAPI.dto.ReportResponse;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IReportService;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,9 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 
-import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
-import com.WarehouseAPI.WarehouseAPI.model.response.ImportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
+import com.WarehouseAPI.WarehouseAPI.dto.ImportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.service.ImportPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

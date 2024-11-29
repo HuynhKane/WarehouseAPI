@@ -1,10 +1,8 @@
-package com.WarehouseAPI.WarehouseAPI.model.response;
+package com.WarehouseAPI.WarehouseAPI.dto;
 
 import com.WarehouseAPI.WarehouseAPI.model.Customer;
-import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 import com.WarehouseAPI.WarehouseAPI.model.User;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
