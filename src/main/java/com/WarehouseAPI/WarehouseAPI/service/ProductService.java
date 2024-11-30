@@ -210,21 +210,28 @@ public class ProductService  implements IProductService {
     @Override
     public List<ProductResponse> getFilteredProducts(String props, String value) {
         try{
-            Criteria criteria = new Criteria();
-            if("supplierId".equals(props)){
-                criteria = Criteria.where("supplierId").is(value);
-            }else if("isInStock".equals(props)){
-                criteria = Criteria.where("isInStock").is(Boolean.parseBoolean(value));
-            }else if("storageLocationId".equals(props)){
-                criteria = Criteria.where("storageLocationId").is(value);
-            }else{
-                return null;
+            Criteria criteria = null;
+            switch (props) {
+                case "supplierId":
+                    criteria = Criteria.where("supplier._id").is(value); // Dot notation for nested field
+                    break;
+                case "genreId":
+                    criteria = Criteria.where("genre._id").is(value); // Dot notation for nested field
+                    break;
+                case "storageLocationId":
+                    criteria = Criteria.where("storageLocation._id").is(value); // Dot notation for nested field
+                    break;
+                case "isInStock":
+                    criteria = Criteria.where("isInStock").is(Boolean.parseBoolean(value));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported filter property: " + props);
             }
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(criteria),
-                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
-                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
+                    Aggregation.lookup("supplier", "supplier._id", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genre._id", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocation._id", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
                     Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true)

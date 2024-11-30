@@ -12,8 +12,7 @@ import java.util.Date;
 public class PendingProduct {
 
     @Id
-    private ObjectId id;
-
+    private String id;
     private String productName;
     @Field("genreId")
     private ObjectId genreId;
@@ -26,9 +25,11 @@ public class PendingProduct {
     private Date lastUpdated;
     private String image;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
+
+
     public String getProductName() {
         return productName;
     }

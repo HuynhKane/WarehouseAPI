@@ -2,7 +2,9 @@ package com.WarehouseAPI.WarehouseAPI.controller;
 
 
 import com.WarehouseAPI.WarehouseAPI.dto.ImportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
 import com.WarehouseAPI.WarehouseAPI.service.ImportPackageService;
+import com.WarehouseAPI.WarehouseAPI.service.interfaces.IImportPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,8 +50,13 @@ public class ImportPackageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ImportPackageResponse> updateImportPackage(@PathVariable String id, @RequestBody ImportPackageResponse importPackage) {
-        ResponseEntity<ImportPackageResponse> updatedImportPackage = importPackageService.updateImportPackage( id, importPackage);
+    public ResponseEntity<ImportPackage> updateImportPackage(@PathVariable String id, @RequestBody ImportPackage importPackage) {
+        ResponseEntity<ImportPackage> updatedImportPackage = importPackageService.updateImportPackage( id, importPackage);
+        return updatedImportPackage;
+    }
+    @PutMapping("/{id}/update-products")
+    public ResponseEntity<ImportPackageResponse> updateProductsInImportPackage(@PathVariable String id, @RequestBody ImportPackageResponse importPackage) {
+        ResponseEntity<ImportPackageResponse> updatedImportPackage = importPackageService.updateProductInImportPackage( id, importPackage);
         return updatedImportPackage;
     }
 
