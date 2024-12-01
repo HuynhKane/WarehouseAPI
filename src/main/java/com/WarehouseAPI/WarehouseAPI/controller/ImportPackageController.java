@@ -34,7 +34,7 @@ public class ImportPackageController {
     }
     @GetMapping("/pending")
     public ResponseEntity<List<ImportPackageResponse>> getAllPendingPackages() {
-        List<ImportPackageResponse> importPackages = importPackageService.getAllPendingPackages();
+        List<ImportPackageResponse> importPackages = importPackageService.getAllImportPackages();
         return new ResponseEntity<>(importPackages, HttpStatus.OK);
     }
     @GetMapping("/done")
