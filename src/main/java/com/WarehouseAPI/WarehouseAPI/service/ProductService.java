@@ -213,13 +213,13 @@ public class ProductService  implements IProductService {
             Criteria criteria = null;
             switch (props) {
                 case "supplierId":
-                    criteria = Criteria.where("supplier._id").is(value); // Dot notation for nested field
+                    criteria = Criteria.where("supplierId").is(new ObjectId(value)); // Dot notation for nested field
                     break;
                 case "genreId":
-                    criteria = Criteria.where("genre._id").is(value); // Dot notation for nested field
+                    criteria = Criteria.where("genreId").is(new ObjectId(value));
                     break;
                 case "storageLocationId":
-                    criteria = Criteria.where("storageLocation._id").is(value); // Dot notation for nested field
+                    criteria = Criteria.where("storageLocationId").is(new ObjectId(value));
                     break;
                 case "isInStock":
                     criteria = Criteria.where("isInStock").is(Boolean.parseBoolean(value));
@@ -229,16 +229,16 @@ public class ProductService  implements IProductService {
             }
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(criteria),
-                    Aggregation.lookup("supplier", "supplier._id", "_id", "supplier"),
-                    Aggregation.lookup("genre", "genre._id", "_id", "genre"),
-                    Aggregation.lookup("storageLocation", "storageLocation._id", "_id", "storageLocation"),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
                     Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true)
             );
             AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
                     aggregation, "product", ProductResponse.class);
-            return results.getMappedResults();
+                return results.getMappedResults();
         } catch (Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error filtering products", e);
         }
