@@ -5,6 +5,7 @@ import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface IProductService {
@@ -14,7 +15,9 @@ public interface IProductService {
     public ProductResponse getProduct(String _id);
     public List<ProductResponse> getSortedProductAscending(String props);
     public List<ProductResponse> getSortedProductDescending(String props);
-    public List<ProductResponse> getFilteredProducts(String props, String value);
+
+    List<ProductResponse> getFilteredProducts(Map<String, String> filters);
+
     public List<ProductResponse> getSearchedProducts(String props, String value);
     public List<ProductResponse> getAllProducts();
     public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay);

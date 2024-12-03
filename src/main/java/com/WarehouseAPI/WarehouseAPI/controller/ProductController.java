@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/product")
@@ -70,14 +71,14 @@ public class ProductController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching products by month", e);
         }
     }
-    @GetMapping("/filter")
-    public List<ProductResponse> getFilteredProductsDetails(@RequestParam("props") String props, @RequestParam("value") String value){
-        return productService.getFilteredProducts(props, value);
-    }
     @GetMapping("/search")
     public List<ProductResponse> getSearchedProductsDetails(@RequestParam("props") String props, @RequestParam("value") String value){
         return productService.getSearchedProducts(props, value);
+    }@GetMapping("/filter")
+    public List<ProductResponse> getFilteredProductsDetails(@RequestParam Map<String, String> filters) {
+        return productService.getFilteredProducts(filters);
     }
+
 
     @PostMapping
     public String addProductDetails(@RequestBody ProductResponse product) {

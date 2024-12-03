@@ -21,9 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -208,27 +206,35 @@ public class ProductService  implements IProductService {
     }
 
     @Override
-    public List<ProductResponse> getFilteredProducts(String props, String value) {
-        try{
-            Criteria criteria = null;
-            switch (props) {
-                case "supplierId":
-                    criteria = Criteria.where("supplierId").is(new ObjectId(value)); // Dot notation for nested field
-                    break;
-                case "genreId":
-                    criteria = Criteria.where("genreId").is(new ObjectId(value));
-                    break;
-                case "storageLocationId":
-                    criteria = Criteria.where("storageLocationId").is(new ObjectId(value));
-                    break;
-                case "isInStock":
-                    criteria = Criteria.where("isInStock").is(Boolean.parseBoolean(value));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported filter property: " + props);
+    public List<ProductResponse> getFilteredProducts(Map<String, String> filters) {
+        try {
+            List<Criteria> criteriaList = new ArrayList<>();
+
+            for (Map.Entry<String, String> filter : filters.entrySet()) {
+                String props = filter.getKey();
+                String value = filter.getValue();
+                switch (props) {
+                    case "supplierId":
+                        criteriaList.add(Criteria.where("supplierId").is(new ObjectId(value)));
+                        break;
+                    case "genreId":
+                        criteriaList.add(Criteria.where("genreId").is(new ObjectId(value)));
+                        break;
+                    case "storageLocationId":
+                        criteriaList.add(Criteria.where("storageLocationId").is(new ObjectId(value)));
+                        break;
+                    case "isInStock":
+                        criteriaList.add(Criteria.where("isInStock").is(Boolean.parseBoolean(value)));
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported filter property: " + props);
+                }
             }
+
+            Criteria finalCriteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
+
             Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(criteria),
+                    Aggregation.match(finalCriteria),
                     Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
                     Aggregation.lookup("genre", "genreId", "_id", "genre"),
                     Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
@@ -236,13 +242,16 @@ public class ProductService  implements IProductService {
                     Aggregation.unwind("storageLocation", true),
                     Aggregation.unwind("genre", true)
             );
+
             AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
                     aggregation, "product", ProductResponse.class);
-                return results.getMappedResults();
-        } catch (Exception e){
+
+            return results.getMappedResults();
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error filtering products", e);
         }
     }
+
 
     @Override
     public List<ProductResponse> getSearchedProducts(String props, String value) {
