@@ -116,25 +116,30 @@ public class ImportPackageService implements IImportPackage {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
         }
     }
+
+    public ResponseEntity<ImportPackage> updateProductImportPackage(String id, Map<String, String> storageLocationIds){
+        Optional<ImportPackage> importPackage = importPackageRepos.findById(id);
+        for( ObjectId productid : importPackage.get().getListProducts()){
+            for (Map.Entry<String, String> produc : storageLocationIds.entrySet()) {
+                String ids = produc.getKey();
+                String storageLocationId = produc.getValue();
+                if(String.valueOf(productid) == ids){
+                    Optional <Product> product2 = productRepository.findById(ids);
+                    product2.get().setStorageLocationId(new ObjectId(storageLocationId));
+                    product2.get().setInStock(true);
+                }
+            }
+        }
+        return null;
+    }
+
+
     @Override
-    public ResponseEntity<ImportPackage> updateProductInImportPackage(String _id, ImportPackageResponse importPackage){
+    public ResponseEntity<ImportPackage> updateProductInImportPackage(String _id){
         try {
         Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
         if (existingPackage.isPresent()) {
             ImportPackage importPackage_save = existingPackage.get();
-            importPackage_save.setPackageName(importPackage.getPackageName());
-            importPackage_save.setImportDate(importPackage.getImportDate());
-            importPackage_save.setNote(importPackage.getNote());
-            importPackage_save.setIdReceiver(new ObjectId(importPackage.getReceiver().get_id()));
-            importPackage_save.setStatusDone(importPackage.getStatusDone());
-            List<ObjectId> productIdList = new ArrayList<>();
-
-            for (ProductResponse product : importPackage.getListProducts()) {
-
-                productService.updateProduct(product.getId(), product);
-
-            }
-            importPackage_save.setListProducts(productIdList);
             importPackageRepos.save(importPackage_save);
             return ResponseEntity.ok(importPackage_save);
         } else {
@@ -144,27 +149,23 @@ public class ImportPackageService implements IImportPackage {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
     }
 }
+
+
     @Override
-    public ResponseEntity<ImportPackage> updateImportPackage(String _id, ImportPackage importPackage) {
+    public ResponseEntity<ImportPackage> updateImportPackage(String _id) {
         try {
             Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
             if (existingPackage.isPresent()) {
-                ImportPackage importPackage_save = existingPackage.get();
-                importPackage_save.setPackageName(importPackage.getPackageName());
-                importPackage_save.setImportDate(importPackage.getImportDate());
-                importPackage_save.setNote(importPackage.getNote());
-                importPackage_save.setIdReceiver(importPackage.getIdReceiver());
-                importPackage_save.setStatusDone(importPackage.getStatusDone());
                 List<ObjectId> productIdList = new ArrayList<>();
                 // Duyệt qua danh sách sản phẩm và gọi phương thức approvePendingProduct để duyệt
-                for (ObjectId pendingProductId : importPackage.getListProducts()) {
+                for (ObjectId pendingProductId : existingPackage.get().getListProducts()) {
 
                     String approvedProductId = approvePendingProduct(pendingProductId);
                     productIdList.add(new ObjectId(approvedProductId)); // Thêm ID sản phẩm đã duyệt vào danh sách
                 }
-                importPackage_save.setListProducts(productIdList);
-                importPackageRepos.save(importPackage_save);
-                return ResponseEntity.ok(importPackage_save);
+                existingPackage.get().setListProducts(productIdList);
+                importPackageRepos.save(existingPackage.get());
+                return ResponseEntity.ok(existingPackage.get());
             } else {
                 return ResponseEntity.notFound().build();
             }

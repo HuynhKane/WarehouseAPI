@@ -14,9 +14,9 @@ public interface IImportPackage {
 
     ResponseEntity<ImportPackage> updateDeclineImportPackage(String _id);
 
-    ResponseEntity<ImportPackage> updateProductInImportPackage(String _id, ImportPackageResponse importPackage);
+    ResponseEntity<ImportPackage> updateProductInImportPackage(String _id);
 
-    public ResponseEntity<ImportPackage> updateImportPackage(String _id, ImportPackage importPackage);
+    public ResponseEntity<ImportPackage> updateImportPackage(String _id);
     public ResponseEntity<ImportPackageResponse> deleteImportPackage(String id);
     public ImportPackageResponse getImportPackage(String _id);
     public List<ImportPackageResponse> getAllImportPackages();

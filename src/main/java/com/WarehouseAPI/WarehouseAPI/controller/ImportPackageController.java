@@ -4,13 +4,16 @@ package com.WarehouseAPI.WarehouseAPI.controller;
 import com.WarehouseAPI.WarehouseAPI.dto.ImportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.PendingImportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
+import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.service.ImportPackageService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IImportPackage;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -57,12 +60,12 @@ public class ImportPackageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ImportPackage> updateImportPackage(@PathVariable String id, @RequestBody ImportPackage importPackage,  @RequestParam("status") String status) {
+    public ResponseEntity<ImportPackage> updateImportPackage(@PathVariable String id, @RequestParam("status") String status) {
         ResponseEntity<ImportPackage> updatedImportPackage = null;
         if(status == "decline"){
             updatedImportPackage = importPackageService.updateDeclineImportPackage(id);
         } else if (status == "approved") {
-            updatedImportPackage = importPackageService.updateImportPackage( id, importPackage);
+            updatedImportPackage = importPackageService.updateImportPackage( id);
         }
         else {
             return null;
@@ -71,11 +74,18 @@ public class ImportPackageController {
     }
 
     @PutMapping("/{id}/update-products")
-    public ResponseEntity<ImportPackage> updateProductsInImportPackage(@PathVariable String id, @RequestBody ImportPackageResponse importPackage) {
-        ResponseEntity<ImportPackage> updatedImportPackage = null;
-            updatedImportPackage = importPackageService.updateProductInImportPackage( id, importPackage);
-            return updatedImportPackage;
-        }
+    public ResponseEntity<ImportPackage> updateProductsInImportPackage(@PathVariable String id, @RequestParam HashMap<String, String> storageLocationIds) {
+        ResponseEntity<ImportPackage> importPackageResponseEntity = null;
+        importPackageResponseEntity = importPackageService.updateProductImportPackage(id, storageLocationIds);
+        return importPackageResponseEntity;
+    }
+//
+//    @PutMapping("/{id}/update-products")
+//    public ResponseEntity<ImportPackage> updateProductsInImportPackage(@PathVariable String id) {
+//        ResponseEntity<ImportPackage> updatedImportPackage = null;
+//            updatedImportPackage = importPackageService.updateProductInImportPackage( id);
+//            return updatedImportPackage;
+//        }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteImportPackage(@PathVariable String id) {
