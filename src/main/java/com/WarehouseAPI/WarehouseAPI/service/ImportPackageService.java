@@ -100,9 +100,24 @@ public class ImportPackageService implements IImportPackage {
 
         return null;
     }
-
     @Override
-    public ResponseEntity<ImportPackageResponse> updateProductInImportPackage(String _id, ImportPackageResponse importPackage){
+    public ResponseEntity<ImportPackage> updateDeclineImportPackage(String _id){
+        try {
+            Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
+            if (existingPackage.isPresent()) {
+                ImportPackage importPackage_save = existingPackage.get();
+                importPackage_save.setStatusDone("DECLINE");
+                importPackageRepos.save(importPackage_save);
+                return ResponseEntity.ok(importPackage_save);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
+        }
+    }
+    @Override
+    public ResponseEntity<ImportPackage> updateProductInImportPackage(String _id, ImportPackageResponse importPackage){
         try {
         Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
         if (existingPackage.isPresent()) {
@@ -121,7 +136,7 @@ public class ImportPackageService implements IImportPackage {
             }
             importPackage_save.setListProducts(productIdList);
             importPackageRepos.save(importPackage_save);
-            return ResponseEntity.ok(importPackage);
+            return ResponseEntity.ok(importPackage_save);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -179,7 +194,7 @@ public class ImportPackageService implements IImportPackage {
             product = productRepository.save(product);
 
             // Xóa sản phẩm Pending (nếu cần)
-            pendingProductRepository.delete(pendingProduct);
+            //pendingProductRepository.delete(pendingProduct);
 
             System.out.println("Approved and moved product: " + product.getProductName());
             return product.get_id(); // Trả về ID của sản phẩm mới (String)
@@ -217,6 +232,31 @@ public class ImportPackageService implements IImportPackage {
             List<ProductResponse> listProducts = new ArrayList<>();
             for (ProductResponse product : importPackage.getListProducts()) {
                 listProducts.add(productService.getProduct(product.getId()));
+            }
+            importPackage.setListProducts(listProducts);
+            return importPackage;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
+        }
+    }
+
+    @Override
+    public ImportPackageResponse getPendingImportPackage(String _id) {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
+                    Aggregation.lookup("user", "idReceiver", "_id", "receiver"),
+                    Aggregation.lookup("pendingProduct", "listProducts", "_id", "listProducts"),
+                    Aggregation.unwind("receiver", true)
+
+            );
+            AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
+                    aggregation, "importPackage", ImportPackageResponse.class);
+
+            ImportPackageResponse importPackage = result.getUniqueMappedResult();
+            List<ProductResponse> listProducts = new ArrayList<>();
+            for (ProductResponse product : importPackage.getListProducts()) {
+                listProducts.add(product);
             }
             importPackage.setListProducts(listProducts);
             return importPackage;
@@ -270,13 +310,13 @@ public class ImportPackageService implements IImportPackage {
                 }
                 importPackage.setListProducts(listProducts);
             }
-            List<ImportPackageResponse> doneList = new ArrayList<>();
+            List<ImportPackageResponse> pendingList = new ArrayList<>();
             for (ImportPackageResponse importPackage : importPackages) {
                 if (Objects.equals(importPackage.getStatusDone(), "PENDING")) {
-                    doneList.add(importPackage);
+                    pendingList.add(importPackage);
                 }
             }
-            return doneList;
+            return importPackages;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
         }
