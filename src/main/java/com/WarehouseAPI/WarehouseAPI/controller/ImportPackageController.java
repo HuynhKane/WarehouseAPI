@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/import-packages")
@@ -38,7 +39,7 @@ public class ImportPackageController {
     }
     @GetMapping("/pending")
     public ResponseEntity<List<ImportPackageResponse>> getAllPendingPackages() {
-        List<ImportPackageResponse> importPackages = importPackageService.getAllImportPackages();
+        List<ImportPackageResponse> importPackages = importPackageService.getAllPendingPackages();
         return new ResponseEntity<>(importPackages, HttpStatus.OK);
     }
     @GetMapping("/done")
@@ -62,10 +63,10 @@ public class ImportPackageController {
     @PutMapping("/{id}")
     public ResponseEntity<ImportPackage> updateImportPackage(@PathVariable String id, @RequestParam("status") String status) {
         ResponseEntity<ImportPackage> updatedImportPackage = null;
-        if(status == "decline"){
+        if(Objects.equals(status, "decline")){
             updatedImportPackage = importPackageService.updateDeclineImportPackage(id);
-        } else if (status == "approved") {
-            updatedImportPackage = importPackageService.updateImportPackage( id);
+        } else if (Objects.equals(status, "approved")) {
+            updatedImportPackage = importPackageService.updateImportPackage(id);
         }
         else {
             return null;

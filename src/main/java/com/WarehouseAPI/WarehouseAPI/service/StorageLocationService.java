@@ -4,6 +4,8 @@ import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.repository.StorageLocationRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStorageLocService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,38 +81,57 @@ public class StorageLocationService implements IStorageLocService {
 
     @Override
     public List<StorageLocation> getEmptyStoLoc() {
+//        List<StorageLocation> unusedStorageLocations = new ArrayList<>();
+//        List<String> usedStorageLocations = new ArrayList<>();
 //        Aggregation aggregation = Aggregation.newAggregation(
-//                Aggregation.group("storageLocationId") // Group by storageLocationId
+//                Aggregation.group("storageLocationId")
 //                        .first("storageLocationId").as("storageLocationId")
 //        );
-//
-//        AggregationResults<String> results = mongoTemplate.aggregate(
-//                aggregation,
-//                "product",
-//                String.class
-//        );
+//        AggregationResults<String> results;
+//        try {
+//            results = mongoTemplate.aggregate(aggregation, "product", String.class);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Error during aggregation query: " + e.getMessage(), e);
+//        }
 //        List<String> ids = results.getMappedResults();
-//        List<String> usedStorageLocations = new ArrayList<>();
-//        List<StorageLocation> UnusedStorageLocations = new ArrayList<>();
+//        if (ids == null || ids.isEmpty()) {
+//            throw new RuntimeException("No storage locations found in the aggregation results.");
+//        }
 //        for (String id : ids) {
 //            ObjectMapper objectMapper = new ObjectMapper();
 //            Map<String, Object> map = null;
 //            try {
 //                map = objectMapper.readValue(id, Map.class);
 //            } catch (JsonProcessingException e) {
-//                throw new RuntimeException(e);
+//                throw new RuntimeException("Error parsing aggregation result: " + e.getMessage(), e);
+//            }
+//            if (map == null || !map.containsKey("storageLocationId")) {
+//                throw new RuntimeException("Invalid aggregation result: Missing 'storageLocationId' key.");
 //            }
 //            Map<String, String> storageLocationId = (Map<String, String>) map.get("storageLocationId");
 //            String oid = storageLocationId.get("$oid");
-//            usedStorageLocations.add(oid);
-//        }
-//        for(StorageLocation storageLocation: storageLocationRepository.findAll()){
-//            if(!usedStorageLocations.contains(storageLocation.get_id())){
-//                UnusedStorageLocations.add(storageLocation);
+//            if (oid != null) {
+//                usedStorageLocations.add(oid);
+//            } else {
+//                throw new RuntimeException("Invalid storage location ID in aggregation result.");
 //            }
 //        }
 //
-//        return UnusedStorageLocations;
+//        List<StorageLocation> storageLocations;
+//        storageLocations = storageLocationRepository.findAll();
+//        if (storageLocations == null || storageLocations.isEmpty()) {
+//            throw new RuntimeException("No storage locations found in the database.");
+//        }
+//        for (StorageLocation storageLocation : storageLocations) {
+//            if (storageLocation != null && !usedStorageLocations.contains(storageLocation.get_id())) {
+//                unusedStorageLocations.add(storageLocation);
+//            }
+//        }
+//
+//        return unusedStorageLocations;
+//    }
+//
+//
         List<ObjectId> usedStorageLocationIds = mongoTemplate.findDistinct(
                 Query.query(Criteria.where("storageLocationId").exists(true)),
                 "storageLocationId",

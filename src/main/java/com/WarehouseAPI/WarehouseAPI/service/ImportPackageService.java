@@ -46,9 +46,7 @@ public class ImportPackageService implements IImportPackage {
 
     public ResponseEntity<ImportPackageResponse> addPendingImportPackage(ImportPackageResponse importPackage) {
         try {
-            // Create and start two threads for the actions
             executorService.submit(() -> {
-                // Task 1: Notification creation and sending
                 Notification notification = new Notification();
                 notification.setTitle("New Package Added");
                 notification.setDescription("Package: " + importPackage.getPackageName() + " has been added successfully.");
@@ -59,7 +57,6 @@ public class ImportPackageService implements IImportPackage {
             });
 
             executorService.submit(() -> {
-                // Task 2: Save import package and process products
                 ImportPackage importPackage_save = new ImportPackage();
                 importPackage_save.setPackageName(importPackage.getPackageName());
                 importPackage_save.setImportDate(importPackage.getImportDate());
@@ -79,9 +76,7 @@ public class ImportPackageService implements IImportPackage {
                     pendingProduct.setImportPrice(productResponse.getImportPrice());
                     pendingProduct.setSellingPrice(productResponse.getSellingPrice());
                     pendingProduct.setSupplierId(new ObjectId(productResponse.getSupplier().get_id()));
-
                     pendingProductRepository.save(pendingProduct);
-
                     listPendingProducts.add(pendingProduct);
                 }
 
@@ -117,20 +112,48 @@ public class ImportPackageService implements IImportPackage {
         }
     }
 
-    public ResponseEntity<ImportPackage> updateProductImportPackage(String id, Map<String, String> storageLocationIds){
-        Optional<ImportPackage> importPackage = importPackageRepos.findById(id);
-        for( ObjectId productid : importPackage.get().getListProducts()){
-            for (Map.Entry<String, String> produc : storageLocationIds.entrySet()) {
-                String ids = produc.getKey();
-                String storageLocationId = produc.getValue();
-                if(String.valueOf(productid) == ids){
-                    Optional <Product> product2 = productRepository.findById(ids);
-                    product2.get().setStorageLocationId(new ObjectId(storageLocationId));
-                    product2.get().setInStock(true);
+    public ResponseEntity<ImportPackage> updateProductImportPackage(String id, Map<String, String> storageLocationIds) {
+        try {
+            Optional<ImportPackage> importPackageOpt = importPackageRepos.findById(id);
+            if (importPackageOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null);
+            }
+            ImportPackage importPackage = importPackageOpt.get();
+            for (ObjectId productId : importPackage.getListProducts()) {
+                for (Map.Entry<String, String> entry : storageLocationIds.entrySet()) {
+                    String productIdString = entry.getKey();
+                    String storageLocationId = entry.getValue();
+                    if (Objects.equals(productId.toString(), productIdString)) {
+                        try {
+                            Optional<Product> productOpt = productRepository.findById(productIdString);
+                            if (productOpt.isPresent()) {
+                                Product product = productOpt.get();
+                                try {
+                                    product.setStorageLocationId(new ObjectId(storageLocationId));
+                                    product.setInStock(true);
+                                    productRepository.save(product);
+                                } catch (Exception e) {
+                                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                            .body(null);
+                                }
+                            } else {
+                                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                        .body(null);
+                            }
+                        } catch (Exception e) {
+                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                    .body(null);
+                        }
+                    }
                 }
             }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(importPackage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
-        return null;
     }
 
 
@@ -156,12 +179,12 @@ public class ImportPackageService implements IImportPackage {
         try {
             Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
             if (existingPackage.isPresent()) {
+                existingPackage.get().setStatusDone("APPROVED");
                 List<ObjectId> productIdList = new ArrayList<>();
-                // Duyệt qua danh sách sản phẩm và gọi phương thức approvePendingProduct để duyệt
                 for (ObjectId pendingProductId : existingPackage.get().getListProducts()) {
 
                     String approvedProductId = approvePendingProduct(pendingProductId);
-                    productIdList.add(new ObjectId(approvedProductId)); // Thêm ID sản phẩm đã duyệt vào danh sách
+                    productIdList.add(new ObjectId(approvedProductId));
                 }
                 existingPackage.get().setListProducts(productIdList);
                 importPackageRepos.save(existingPackage.get());
@@ -294,30 +317,14 @@ public class ImportPackageService implements IImportPackage {
     @Override
     public List<ImportPackageResponse> getAllPendingPackages() {
         try {
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.lookup("user", "idReceiver", "_id", "receiver"),
-                    Aggregation.lookup("pendingProduct", "listProducts", "_id", "listProducts"),
-                    Aggregation.unwind("receiver", true)
-
-            );
-            AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
-                    aggregation, "importPackage", ImportPackageResponse.class);
-            List<ImportPackageResponse> importPackages = result.getMappedResults();
-            for (ImportPackageResponse importPackage : importPackages) {
-                List<ProductResponse> listProducts = new ArrayList<>();
-                for (ProductResponse product : importPackage.getListProducts()) {
-                    ProductResponse pendingProduct = productService.getProduct(product.getId());
-                    listProducts.add(pendingProduct);
-                }
-                importPackage.setListProducts(listProducts);
-            }
-            List<ImportPackageResponse> pendingList = new ArrayList<>();
-            for (ImportPackageResponse importPackage : importPackages) {
-                if (Objects.equals(importPackage.getStatusDone(), "PENDING")) {
-                    pendingList.add(importPackage);
+            List<ImportPackageResponse> importPackages = getAllImportPackages();
+            List<ImportPackageResponse> pendingPackages = new ArrayList<>();
+            for(ImportPackageResponse importPackageResponse: importPackages){
+                if(Objects.equals(importPackageResponse.getStatusDone(), "PENDING")){
+                    pendingPackages.add(importPackageResponse);
                 }
             }
-            return importPackages;
+            return pendingPackages;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
         }
@@ -352,4 +359,5 @@ public class ImportPackageService implements IImportPackage {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
         }
     }
+
 }
