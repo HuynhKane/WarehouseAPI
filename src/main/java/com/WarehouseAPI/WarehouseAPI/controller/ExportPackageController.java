@@ -22,12 +22,15 @@ public class ExportPackageController {
         this.exportPackageService = exportPackageService;
     }
 
-    @PostMapping
-    public ResponseEntity<ExportPackage> createExportPackage(@RequestBody ExportPackageResponse exportPackage) {
-        ResponseEntity<ExportPackage> createdExportPackage = exportPackageService.addExportPackage(exportPackage);
+    @PostMapping("/pending")
+    public ResponseEntity<ExportPackage> createExportPackage(@RequestBody ExportPackage exportPackage) {
+        ResponseEntity<ExportPackage> createdExportPackage = exportPackageService.addPendingExportPackage(exportPackage);
         return createdExportPackage;
     }
-
+    @PutMapping("/approve/{packageId}")
+    public ResponseEntity<ExportPackage> approveExportPackage(@PathVariable String packageId) {
+        return exportPackageService.approveExportPackage(packageId);
+    }
     @GetMapping
     public ResponseEntity<List<ExportPackageResponse>> getAllExportPackages() {
         List<ExportPackageResponse> exportPackages = exportPackageService.getAllExportPackages();
@@ -52,7 +55,7 @@ public class ExportPackageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExportPackage> updateExportPackage(@PathVariable String id, @RequestBody ExportPackageResponse exportPackageResponse) {
+    public ResponseEntity<ExportPackage> updateExportPackage(@PathVariable String id, @RequestBody ExportPackage exportPackageResponse) {
         ResponseEntity<ExportPackage> updatedPackage = exportPackageService.updateExportPackage( id, exportPackageResponse);
         return updatedPackage;
     }

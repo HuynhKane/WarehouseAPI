@@ -7,8 +7,14 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface IExportPackage {
-    public ResponseEntity<ExportPackage> addExportPackage(ExportPackageResponse exportPackage);
-    public ResponseEntity<ExportPackage> updateExportPackage(String _id, ExportPackageResponse exportPackage);
+
+    ResponseEntity<ExportPackage> addPendingExportPackage(ExportPackage exportPackage);
+
+
+    ResponseEntity<ExportPackage> updateExportPackage(String _id, ExportPackage exportPackage);
+
+    ResponseEntity<ExportPackage> approveExportPackage(String packageId);
+
     public ResponseEntity<ExportPackage> deleteExportPackage(String id);
     public ExportPackageResponse getExportPackage(String _id);
     public List<ExportPackageResponse> getAllExportPackages();

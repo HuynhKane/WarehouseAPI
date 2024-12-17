@@ -32,4 +32,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
             "{ '$project': { '_id': 0, 'storageLocationId': '$_id', 'storageLocationName': '$storageLocationDetails.storageLocationName', 'totalQuantity': 1 } }"
     })
     List<StorageLocationSummary> getStockSummaryByLocation();
+    long countBy_idIn(List<String> ids);
+
 }

@@ -1,11 +1,13 @@
 package com.WarehouseAPI.WarehouseAPI.model;
 
 
+import com.WarehouseAPI.WarehouseAPI.dto.ProductWithQuantity;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -22,11 +24,20 @@ public class ExportPackage {
     private ObjectId idSender;
     @Field("customerId")
     private ObjectId customerId;
-    private boolean statusDone;
+    private String statusDone;
     private String note;
     @Field("listProducts")
-    private List<ObjectId> listProducts;
+    private List<ProductWithQuantity> listProducts;
+    private BigDecimal totalSellingPrice;
 
+
+    public BigDecimal getTotalSellingPrice() {
+        return totalSellingPrice;
+    }
+
+    public void setTotalSellingPrice(BigDecimal totalSellingPrice) {
+        this.totalSellingPrice = totalSellingPrice;
+    }
 
     public String getId() {
         return id;
@@ -76,11 +87,11 @@ public class ExportPackage {
         this.customerId = customerId;
     }
 
-    public boolean isStatusDone() {
+    public String getStatusDone() {
         return statusDone;
     }
 
-    public void setStatusDone(boolean statusDone) {
+    public void setStatusDone(String statusDone) {
         this.statusDone = statusDone;
     }
 
@@ -92,11 +103,11 @@ public class ExportPackage {
         this.note = note;
     }
 
-    public List<ObjectId> getListProducts() {
+    public List<ProductWithQuantity> getListProducts() {
         return listProducts;
     }
 
-    public void setListProducts(List<ObjectId> listProducts) {
+    public void setListProducts(List<ProductWithQuantity> listProducts) {
         this.listProducts = listProducts;
     }
 }

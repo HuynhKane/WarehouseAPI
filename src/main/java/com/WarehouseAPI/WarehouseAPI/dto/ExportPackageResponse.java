@@ -3,6 +3,7 @@ package com.WarehouseAPI.WarehouseAPI.dto;
 import com.WarehouseAPI.WarehouseAPI.model.Customer;
 import com.WarehouseAPI.WarehouseAPI.model.User;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -14,9 +15,10 @@ public class ExportPackageResponse {
     private User sender;
     private Customer customer;
     private String deliveryMethod;
-    private boolean statusDone;
+    private String statusDone;
     private String note;
     private List<ProductResponse> listProducts;
+    private BigDecimal totalSellingPrice;
 
     public String getId() {
         return id;
@@ -66,11 +68,12 @@ public class ExportPackageResponse {
         this.deliveryMethod = deliveryMethod;
     }
 
-    public boolean isStatusDone() {
+
+    public String getStatusDone() {
         return statusDone;
     }
 
-    public void setStatusDone(boolean statusDone) {
+    public void setStatusDone(String statusDone) {
         this.statusDone = statusDone;
     }
 
@@ -88,5 +91,13 @@ public class ExportPackageResponse {
 
     public void setListProducts(List<ProductResponse> listProducts) {
         this.listProducts = listProducts;
+    }
+
+    public BigDecimal getTotalSellingPrice() {
+        return totalSellingPrice;
+    }
+
+    public void setTotalSellingPrice(BigDecimal totalSellingPrice) {
+        this.totalSellingPrice = totalSellingPrice;
     }
 }

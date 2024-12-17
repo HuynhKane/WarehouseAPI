@@ -1,9 +1,12 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
+import com.WarehouseAPI.WarehouseAPI.dto.ProductWithQuantity;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
+import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IExportPackage;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @Service
 public class ExportPackageService implements IExportPackage {
@@ -28,6 +32,8 @@ public class ExportPackageService implements IExportPackage {
     private final ExportPackageRepos exportPackageRepos;
     private final MongoTemplate mongoTemplate;
     private final ProductService productService;
+    @Autowired
+    private ProductRepository productRepository;
 
     public ExportPackageService(ExportPackageRepos exportPackageRepos, MongoTemplate mongoTemplate, ProductService productService) {
         this.exportPackageRepos = exportPackageRepos;
@@ -36,21 +42,34 @@ public class ExportPackageService implements IExportPackage {
     }
 
     @Override
-    public ResponseEntity<ExportPackage> addExportPackage(ExportPackageResponse exportPackage) {
+    public ResponseEntity<ExportPackage> addPendingExportPackage(ExportPackage exportPackage) {
         try{
             ExportPackage exportPackage_save = new ExportPackage();
             exportPackage_save.setPackageName(exportPackage.getPackageName());
-            exportPackage_save.setExportDate(exportPackage.getExportDate());
+            exportPackage_save.setExportDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
             exportPackage_save.setNote(exportPackage.getNote());
-            exportPackage_save.setIdSender(new ObjectId(exportPackage.getSender().get_id()));
-            exportPackage_save.setCustomerId(new ObjectId(exportPackage.getCustomer().getId()));
-            exportPackage_save.setStatusDone(exportPackage.isStatusDone());
-            List<ProductResponse> productResponseList = exportPackage.getListProducts();
-            List<ObjectId> productIdList = new ArrayList<>();
-            for (ProductResponse productResponse : productResponseList){
-                productIdList.add(new ObjectId(productResponse.getId()));
+            exportPackage_save.setDeliveryMethod(exportPackage.getDeliveryMethod());
+            exportPackage_save.setIdSender(new ObjectId(String.valueOf(exportPackage.getIdSender())));
+            exportPackage_save.setCustomerId(new ObjectId(String.valueOf(exportPackage.getCustomerId())));
+            exportPackage_save.setStatusDone("PENDING");
+            List<ProductWithQuantity> productResponseList = exportPackage.getListProducts();
+            List<ProductWithQuantity> productIdList = new ArrayList<>();
+            BigDecimal totalPrice = BigDecimal.valueOf(0);
+            for (ProductWithQuantity productResponse : productResponseList) {
+                ProductWithQuantity product = new ProductWithQuantity();
+                product.setProductId(new ObjectId(String.valueOf(productResponse.getProductId())));
+                Optional<Product> productOptional = productRepository.findById(String.valueOf(productResponse.getProductId()));
+
+                if (productOptional.isPresent()) {
+                    Product product1 = productOptional.get();
+                    BigDecimal quantity = BigDecimal.valueOf(productResponse.getQuantity());
+                    totalPrice = totalPrice.add(product1.getSellingPrice().multiply(quantity));
+                }
+                product.setQuantity(productResponse.getQuantity());
+                productIdList.add(product);
             }
             exportPackage_save.setListProducts(productIdList);
+            exportPackage_save.setTotalSellingPrice(totalPrice);
             exportPackageRepos.save(exportPackage_save);
 
 
@@ -61,24 +80,36 @@ public class ExportPackageService implements IExportPackage {
     }
 
     @Override
-    public ResponseEntity<ExportPackage> updateExportPackage(String _id, ExportPackageResponse exportPackage) {
+    public ResponseEntity<ExportPackage> updateExportPackage(String _id, ExportPackage exportPackage) {
         try {
             Optional<ExportPackage> existingPackage = exportPackageRepos.findById(_id);
             if (existingPackage.isPresent()) {
                 ExportPackage exportPackage_save = existingPackage.get();
                 exportPackage_save.setPackageName(exportPackage.getPackageName());
-                exportPackage_save.setExportDate(exportPackage.getExportDate());
+                exportPackage_save.setExportDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
                 exportPackage_save.setDeliveryMethod(exportPackage.getDeliveryMethod());
                 exportPackage_save.setNote(exportPackage.getNote());
-                exportPackage_save.setIdSender(new ObjectId(exportPackage.getSender().get_id()));
-                exportPackage_save.setCustomerId(new ObjectId(exportPackage.getCustomer().getId()));
-                exportPackage_save.setStatusDone(exportPackage.isStatusDone());
-                List<ProductResponse> productResponseList = exportPackage.getListProducts();
-                List<ObjectId> productIdList = new ArrayList<>();
-                for (ProductResponse productResponse : productResponseList){
-                    productIdList.add(new ObjectId(productResponse.getId()));
+                exportPackage_save.setIdSender(new ObjectId(String.valueOf(exportPackage.getIdSender())));
+                exportPackage_save.setCustomerId(new ObjectId(String.valueOf(exportPackage.getCustomerId())));
+                exportPackage_save.setStatusDone(exportPackage.getStatusDone());
+                List<ProductWithQuantity> productResponseList = exportPackage.getListProducts();
+                List<ProductWithQuantity> productIdList = new ArrayList<>();
+                BigDecimal totalPrice = BigDecimal.valueOf(0);
+                for (ProductWithQuantity productResponse : productResponseList) {
+                    ProductWithQuantity product = new ProductWithQuantity();
+                    product.setProductId(new ObjectId(String.valueOf(productResponse.getProductId())));
+                    Optional<Product> productOptional = productRepository.findById(String.valueOf(productResponse.getProductId()));
+
+                    if (productOptional.isPresent()) {
+                        Product product1 = productOptional.get();
+                        BigDecimal quantity = BigDecimal.valueOf(productResponse.getQuantity());
+                        totalPrice = totalPrice.add(product1.getSellingPrice().multiply(quantity));
+                    }
+                    product.setQuantity(productResponse.getQuantity());
+                    productIdList.add(product);
                 }
-                exportPackage_save.setListProducts(productIdList);
+
+                exportPackage_save.setTotalSellingPrice(totalPrice);
                 exportPackageRepos.save(exportPackage_save);
                 return ResponseEntity.ok(exportPackage_save);
             } else {
@@ -89,6 +120,54 @@ public class ExportPackageService implements IExportPackage {
         }
     }
 
+    @Override
+    public ResponseEntity<ExportPackage> approveExportPackage(String packageId) {
+        try {
+
+            Optional<ExportPackage> exportPackageOpt = exportPackageRepos.findById(packageId);
+
+            // If package not found, return error response
+            if (exportPackageOpt.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Export package not found");
+            }
+
+            ExportPackage exportPackage = exportPackageOpt.get();
+
+            // Check stock for each product in the package
+            for (ProductWithQuantity product : exportPackage.getListProducts()) {
+                Optional<Product> productOpt = productRepository.findById(String.valueOf(product.getProductId()));  // Fetch product details
+
+                // If product not found, return error response
+                if (productOpt.isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + product.getProductId());
+                }
+
+                Product productFromDb = productOpt.get();
+
+                // Check if the quantity is sufficient
+                if (product.getQuantity() > productFromDb.getQuantity()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.getProductId());
+                }
+
+                // Update product stock by reducing the quantity
+                productFromDb.setQuantity(productFromDb.getQuantity() - product.getQuantity());
+
+                // Save the updated product
+                productRepository.save(productFromDb);
+            }
+
+            // If stock is sufficient for all products, update status to "APPROVED"
+            exportPackage.setStatusDone("APPROVED");
+
+            // Save the updated package back to the database
+            exportPackageRepos.save(exportPackage);
+
+            // Return success response
+            return ResponseEntity.ok(exportPackage);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error approving export package", e);
+        }
+    }
     @Override
     public ResponseEntity<ExportPackage> deleteExportPackage(String id) {
         try {
@@ -107,7 +186,7 @@ public class ExportPackageService implements IExportPackage {
                     Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
                     Aggregation.lookup("user", "idSender", "_id", "sender"),
                     Aggregation.lookup("customer", "customerId", "_id", "customer"),
-                    Aggregation.lookup("product", "listProducts", "_id", "listProducts"),
+                    Aggregation.lookup("product", "listProducts.productId", "_id", "listProducts"),
                     Aggregation.unwind("sender", true),
                     Aggregation.unwind("customer", true)
             );
@@ -157,7 +236,7 @@ public class ExportPackageService implements IExportPackage {
         try {
             List<ExportPackageResponse> pendingList = new ArrayList<>();
             for (ExportPackageResponse exportPackage : getAllExportPackages()) {
-                if (!exportPackage.isStatusDone()) {
+                if (Objects.equals(exportPackage.getStatusDone(),"PENDING")){
                     pendingList.add(exportPackage);
                 }
             }
@@ -172,7 +251,7 @@ public class ExportPackageService implements IExportPackage {
         try {
             List<ExportPackageResponse> doneList = new ArrayList<>();
             for (ExportPackageResponse exportPackage : getAllExportPackages()) {
-                if (exportPackage.isStatusDone()) {
+                if (Objects.equals(exportPackage.getStatusDone(),"DONE")){
                     doneList.add(exportPackage);
                 }
             }

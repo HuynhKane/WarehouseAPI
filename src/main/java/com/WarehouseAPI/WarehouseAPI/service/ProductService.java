@@ -277,6 +277,9 @@ public class ProductService  implements IProductService {
             Criteria criteria = new Criteria();
             if ("productName".equals(props)) {
                 criteria = Criteria.where("productName").regex(value, "i");
+            } else if ("id".equals(props)) {
+                criteria = Criteria.where("_id").regex(value, "i");
+
             } else {
                 return null;
             }
