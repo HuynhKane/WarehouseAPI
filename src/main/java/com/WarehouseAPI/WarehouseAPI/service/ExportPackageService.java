@@ -80,47 +80,6 @@ public class ExportPackageService implements IExportPackage {
     }
 
     @Override
-    public ResponseEntity<ExportPackage> updateExportPackage(String _id, ExportPackage exportPackage) {
-        try {
-            Optional<ExportPackage> existingPackage = exportPackageRepos.findById(_id);
-            if (existingPackage.isPresent()) {
-                ExportPackage exportPackage_save = existingPackage.get();
-                exportPackage_save.setPackageName(exportPackage.getPackageName());
-                exportPackage_save.setExportDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-                exportPackage_save.setDeliveryMethod(exportPackage.getDeliveryMethod());
-                exportPackage_save.setNote(exportPackage.getNote());
-                exportPackage_save.setIdSender(new ObjectId(String.valueOf(exportPackage.getIdSender())));
-                exportPackage_save.setCustomerId(new ObjectId(String.valueOf(exportPackage.getCustomerId())));
-                exportPackage_save.setStatusDone(exportPackage.getStatusDone());
-                List<ProductWithQuantity> productResponseList = exportPackage.getListProducts();
-                List<ProductWithQuantity> productIdList = new ArrayList<>();
-                BigDecimal totalPrice = BigDecimal.valueOf(0);
-                for (ProductWithQuantity productResponse : productResponseList) {
-                    ProductWithQuantity product = new ProductWithQuantity();
-                    product.setProductId(new ObjectId(String.valueOf(productResponse.getProductId())));
-                    Optional<Product> productOptional = productRepository.findById(String.valueOf(productResponse.getProductId()));
-
-                    if (productOptional.isPresent()) {
-                        Product product1 = productOptional.get();
-                        BigDecimal quantity = BigDecimal.valueOf(productResponse.getQuantity());
-                        totalPrice = totalPrice.add(product1.getSellingPrice().multiply(quantity));
-                    }
-                    product.setQuantity(productResponse.getQuantity());
-                    productIdList.add(product);
-                }
-
-                exportPackage_save.setTotalSellingPrice(totalPrice);
-                exportPackageRepos.save(exportPackage_save);
-                return ResponseEntity.ok(exportPackage_save);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating export package", e);
-        }
-    }
-
-    @Override
     public ResponseEntity<ExportPackage> approveExportPackage(String packageId) {
         try {
 

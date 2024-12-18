@@ -54,11 +54,7 @@ public class ExportPackageController {
         return new ResponseEntity<>(exportPackage, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ExportPackage> updateExportPackage(@PathVariable String id, @RequestBody ExportPackage exportPackageResponse) {
-        ResponseEntity<ExportPackage> updatedPackage = exportPackageService.updateExportPackage( id, exportPackageResponse);
-        return updatedPackage;
-    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExportPackage(@PathVariable String id) {
