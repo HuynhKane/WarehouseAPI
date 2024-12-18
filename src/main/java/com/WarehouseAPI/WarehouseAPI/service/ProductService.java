@@ -36,9 +36,6 @@ public class ProductService  implements IProductService {
     private NotificationService notificationService;
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-    @Autowired
-    private StorageLocationService storageLocationService;
-
     public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate, SimpMessagingTemplate messagingTemplate, NotificationService notificationService){
         this.productRepository = productRepository;
         this.mongoTemplate = mongoTemplate;
@@ -146,23 +143,6 @@ public class ProductService  implements IProductService {
             );
             AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
                     aggregation, "product", ProductResponse.class);
-            return result.getUniqueMappedResult();
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);
-        }
-    }
-    @Override
-    public ProductResponse getPendingProduct(String _id) {
-        try {
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
-                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
-                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
-                    Aggregation.unwind("supplier", true),
-                    Aggregation.unwind("genre", true)
-            );
-            AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
-                    aggregation, "pendingProduct", ProductResponse.class);
             return result.getUniqueMappedResult();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);

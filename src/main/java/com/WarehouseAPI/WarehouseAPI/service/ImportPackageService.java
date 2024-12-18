@@ -158,23 +158,6 @@ public class ImportPackageService implements IImportPackage {
 
 
     @Override
-    public ResponseEntity<ImportPackage> updateProductInImportPackage(String _id){
-        try {
-        Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
-        if (existingPackage.isPresent()) {
-            ImportPackage importPackage_save = existingPackage.get();
-            importPackageRepos.save(importPackage_save);
-            return ResponseEntity.ok(importPackage_save);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    } catch (Exception e) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
-    }
-}
-
-
-    @Override
     public ResponseEntity<ImportPackage> updateImportPackage(String _id) {
         try {
             Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
@@ -336,21 +319,6 @@ public class ImportPackageService implements IImportPackage {
             List<ImportPackageResponse> doneList = new ArrayList<>();
             for (ImportPackageResponse importPackage : getAllImportPackages()) {
                 if (Objects.equals(importPackage.getStatusDone(), "APPROVED")) {
-                    doneList.add(importPackage);
-                }
-            }
-            return doneList;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
-        }
-    }
-
-    @Override
-    public List<ImportPackageResponse> getAllCancelledPackages() {
-        try {
-            List<ImportPackageResponse> doneList = new ArrayList<>();
-            for (ImportPackageResponse importPackage : getAllImportPackages()) {
-                if (Objects.equals(importPackage.getStatusDone(), "CANCELLED")) {
                     doneList.add(importPackage);
                 }
             }
