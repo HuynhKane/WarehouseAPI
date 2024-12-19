@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.dto.ProductWithQuantity;
+import com.WarehouseAPI.WarehouseAPI.exception.InsufficientStockException;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
@@ -48,7 +49,7 @@ public class ExportPackageService implements IExportPackage {
             exportPackage_save.setPackageName(exportPackage.getPackageName());
             exportPackage_save.setExportDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
             exportPackage_save.setNote(exportPackage.getNote());
-            exportPackage_save.setDeliveryMethod(exportPackage.getDeliveryMethod());
+            exportPackage_save.setDeliveryMethod("Standard");
             exportPackage_save.setIdSender(new ObjectId(String.valueOf(exportPackage.getIdSender())));
             exportPackage_save.setCustomerId(new ObjectId(String.valueOf(exportPackage.getCustomerId())));
             exportPackage_save.setStatusDone("PENDING");
@@ -82,46 +83,34 @@ public class ExportPackageService implements IExportPackage {
     @Override
     public ResponseEntity<ExportPackage> approveExportPackage(String packageId) {
         try {
-
             Optional<ExportPackage> exportPackageOpt = exportPackageRepos.findById(packageId);
-
-            // If package not found, return error response
             if (exportPackageOpt.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Export package not found");
             }
-
             ExportPackage exportPackage = exportPackageOpt.get();
-
-            // Check stock for each product in the package
             for (ProductWithQuantity product : exportPackage.getListProducts()) {
                 Optional<Product> productOpt = productRepository.findById(String.valueOf(product.getProductId()));  // Fetch product details
-
-                // If product not found, return error response
                 if (productOpt.isEmpty()) {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + product.getProductId());
                 }
-
                 Product productFromDb = productOpt.get();
-
-                // Check if the quantity is sufficient
                 if (product.getQuantity() > productFromDb.getQuantity()) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.getProductId());
+                    throw new InsufficientStockException(
+                            "Insufficient stock for product: " + product.getProductId() +
+                                    ". Available: " + productFromDb.getQuantity() +
+                                    ", Requested: " + product.getQuantity()
+                    );
                 }
-
-                // Update product stock by reducing the quantity
                 productFromDb.setQuantity(productFromDb.getQuantity() - product.getQuantity());
-
-                // Save the updated product
+                if (Objects.equals(productFromDb.getQuantity(), 0)){
+                    productFromDb.setInStock(false);
+                }
                 productRepository.save(productFromDb);
             }
-
-            // If stock is sufficient for all products, update status to "APPROVED"
             exportPackage.setStatusDone("APPROVED");
+            exportPackage.setIdSender(new ObjectId("67276a79a0b1c2534dca6e61"));
 
-            // Save the updated package back to the database
             exportPackageRepos.save(exportPackage);
-
-            // Return success response
             return ResponseEntity.ok(exportPackage);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error approving export package", e);
@@ -170,7 +159,7 @@ public class ExportPackageService implements IExportPackage {
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.lookup("user", "idSender", "_id", "sender"),
                     Aggregation.lookup("customer", "customerId", "_id", "customer"),
-                    Aggregation.lookup("product", "listProducts", "_id", "listProducts"),
+                    Aggregation.lookup("product", "listProducts.productId", "_id", "listProducts"),
                     Aggregation.unwind("sender", true),
                     Aggregation.unwind("customer", true)
             );
@@ -194,6 +183,7 @@ public class ExportPackageService implements IExportPackage {
     public List<ExportPackageResponse> getAllPendingPackages() {
         try {
             List<ExportPackageResponse> pendingList = new ArrayList<>();
+            List<ExportPackage> packages = new ArrayList<>();
             for (ExportPackageResponse exportPackage : getAllExportPackages()) {
                 if (Objects.equals(exportPackage.getStatusDone(),"PENDING")){
                     pendingList.add(exportPackage);
@@ -210,7 +200,7 @@ public class ExportPackageService implements IExportPackage {
         try {
             List<ExportPackageResponse> doneList = new ArrayList<>();
             for (ExportPackageResponse exportPackage : getAllExportPackages()) {
-                if (Objects.equals(exportPackage.getStatusDone(),"DONE")){
+                if (!Objects.equals(exportPackage.getStatusDone(),"PENDING")){
                     doneList.add(exportPackage);
                 }
             }

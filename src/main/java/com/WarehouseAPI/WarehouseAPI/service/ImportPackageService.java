@@ -200,9 +200,6 @@ public class ImportPackageService implements IImportPackage {
             // Lưu vào collection Product
             product = productRepository.save(product);
 
-            // Xóa sản phẩm Pending (nếu cần)
-            //pendingProductRepository.delete(pendingProduct);
-
             System.out.println("Approved and moved product: " + product.getProductName());
             return product.get_id(); // Trả về ID của sản phẩm mới (String)
         } else {

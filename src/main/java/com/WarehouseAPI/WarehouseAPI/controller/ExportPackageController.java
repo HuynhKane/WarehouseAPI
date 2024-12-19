@@ -5,6 +5,7 @@ import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.service.ExportPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,11 @@ public class ExportPackageController {
     public ResponseEntity<ExportPackage> approveExportPackage(@PathVariable String packageId) {
         return exportPackageService.approveExportPackage(packageId);
     }
+
+//    @PutMapping("/approve/{packageId}")
+//    public ResponseEntity<ExportPackage> approveExportPackage(@PathVariable String packageId, @RequestParam("idSender") String idSender) {
+//        return exportPackageService.approveExportPackage(packageId, idSender);
+//    }
     @GetMapping
     public ResponseEntity<List<ExportPackageResponse>> getAllExportPackages() {
         List<ExportPackageResponse> exportPackages = exportPackageService.getAllExportPackages();
