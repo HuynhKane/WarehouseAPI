@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,6 +64,7 @@ public class ImportPackageService implements IImportPackage {
                 importPackage_save.setNote(importPackage.getNote());
                 importPackage_save.setIdReceiver(new ObjectId(importPackage.getReceiver().get_id()));
                 importPackage_save.setStatusDone("PENDING");
+                importPackage_save.setImportDate(LocalDateTime.now());
                 List<ProductResponse> productResponseList = importPackage.getListProducts();
                 List<PendingProduct> listPendingProducts = new ArrayList<>();
                 List<ObjectId> listIdProducts = new ArrayList<>();
@@ -260,7 +262,8 @@ public class ImportPackageService implements IImportPackage {
             ImportPackageResponse importPackage = result.getUniqueMappedResult();
             List<ProductResponse> listProducts = new ArrayList<>();
             for (ProductResponse product : importPackage.getListProducts()) {
-                listProducts.add(product);
+                System.out.println(product);
+                listProducts.add(productService.getPendingProduct(product.getId()));
             }
             importPackage.setListProducts(listProducts);
             return importPackage;
@@ -301,7 +304,8 @@ public class ImportPackageService implements IImportPackage {
             List<ImportPackageResponse> pendingPackages = new ArrayList<>();
             for(ImportPackageResponse importPackageResponse: importPackages){
                 if(Objects.equals(importPackageResponse.getStatusDone(), "PENDING")){
-                    pendingPackages.add(importPackageResponse);
+
+                    pendingPackages.add(getPendingImportPackage(importPackageResponse.getId()));
                 }
             }
             return pendingPackages;

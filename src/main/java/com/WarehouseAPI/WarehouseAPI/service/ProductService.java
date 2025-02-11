@@ -150,6 +150,26 @@ public class ProductService  implements IProductService {
     }
 
     @Override
+    public ProductResponse getPendingProduct(String _id) {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
+                    Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                    Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                    Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
+                    Aggregation.unwind("supplier", true),
+                    Aggregation.unwind("storageLocation", true),
+                    Aggregation.unwind("genre", true)
+            );
+            AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
+                    aggregation, "pendingProduct", ProductResponse.class);
+            return result.getUniqueMappedResult();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);
+        }
+    }
+
+    @Override
     public List<ProductResponse> getAllProducts() {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),

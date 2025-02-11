@@ -44,7 +44,7 @@ public class ImportPackageController {
         return new ResponseEntity<>(importPackages, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/done/{id}")
     public ResponseEntity<ImportPackageResponse> getImportPackageById(@PathVariable String id) {
         ImportPackageResponse importPackage = importPackageService.getImportPackage(id);
         return new ResponseEntity<>(importPackage, HttpStatus.OK);

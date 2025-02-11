@@ -17,6 +17,9 @@ public interface IProductService {
     public List<ProductResponse> getSortedProductDescending(String props);
     List<ProductResponse> getFilteredProducts(Map<String, String> filters);
     public List<ProductResponse> getSearchedProducts(String props, String value);
+
+    ProductResponse getPendingProduct(String _id);
+
     public List<ProductResponse> getAllProducts();
     public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay);
     public List<ProductResponse> getProductsByMonth(int year, int month);
