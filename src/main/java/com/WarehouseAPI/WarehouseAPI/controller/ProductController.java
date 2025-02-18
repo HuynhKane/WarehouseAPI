@@ -74,7 +74,9 @@ public class ProductController {
     @GetMapping("/search")
     public List<ProductResponse> getSearchedProductsDetails(@RequestParam("props") String props, @RequestParam("value") String value){
         return productService.getSearchedProducts(props, value);
-    }@GetMapping("/filter")
+    }
+
+    @GetMapping("/filter")
     public List<ProductResponse> getFilteredProductsDetails(@RequestParam Map<String, String> filters) {
         return productService.getFilteredProducts(filters);
     }

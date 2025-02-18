@@ -10,5 +10,7 @@ public interface ICustomerService {
     public String deleteCustomer(String idCustomer);
     public Customer getCustomer(String _id);
 
+    List<Customer> getSearchedCustomers(String props, String value);
+
     public List<Customer> getAllCustomer();
 }

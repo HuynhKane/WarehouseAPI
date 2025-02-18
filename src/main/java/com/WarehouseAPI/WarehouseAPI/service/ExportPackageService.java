@@ -66,6 +66,8 @@ public class ExportPackageService implements IExportPackage {
                     BigDecimal quantity = BigDecimal.valueOf(productResponse.getQuantity());
                     totalPrice = totalPrice.add(product1.getSellingPrice().multiply(quantity));
                 }
+
+                
                 product.setQuantity(productResponse.getQuantity());
                 productIdList.add(product);
             }
