@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
+import com.WarehouseAPI.WarehouseAPI.dto.GenreByDateResponse;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
 import org.springframework.http.ResponseEntity;
@@ -15,4 +16,5 @@ public interface IExportPackage {
     public List<ExportPackageResponse> getAllExportPackages();
     public  List<ExportPackageResponse> getAllPendingPackages();
     public List<ExportPackageResponse> getAllDonePackages();
+    public List<GenreByDateResponse> getGenreExportByDate(String date);
 }

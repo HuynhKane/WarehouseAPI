@@ -1,10 +1,12 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
+import com.WarehouseAPI.WarehouseAPI.dto.GenreByDateResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductWithQuantity;
 import com.WarehouseAPI.WarehouseAPI.exception.InsufficientStockException;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
+import com.WarehouseAPI.WarehouseAPI.model.Genre;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
@@ -204,6 +206,34 @@ public class ExportPackageService implements IExportPackage {
             for (ExportPackageResponse exportPackage : getAllExportPackages()) {
                 if (!Objects.equals(exportPackage.getStatusDone(),"PENDING")){
                     doneList.add(exportPackage);
+                }
+            }
+            return doneList;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
+        }
+    }
+
+    @Override
+    public List<GenreByDateResponse> getGenreExportByDate(String date) {
+        try {
+            List<GenreByDateResponse> doneList = new ArrayList<>();
+            for (ExportPackageResponse exportPackage : getAllExportPackages()) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(exportPackage.getExportDate());
+                int exportDay = calendar.get(Calendar.DAY_OF_MONTH);
+                int exportMonth = calendar.get(Calendar.MONTH) + 1;
+                int exportYear = calendar.get(Calendar.YEAR);
+
+                if (String.format("%02d-%02d-%04d", exportDay, exportMonth, exportYear).equals(date)) {
+                    for (Genre genre : exportPackage.getListProducts().stream().map(ProductResponse::getGenre).toList()) {
+                        GenreByDateResponse response = new GenreByDateResponse();
+                        response.setDay(exportDay);
+                        response.setMonth(exportMonth);
+                        response.setYear(exportYear);
+                        response.setGenre(genre);
+                        doneList.add(response);
+                    }
                 }
             }
             return doneList;
