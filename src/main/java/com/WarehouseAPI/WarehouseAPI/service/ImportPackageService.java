@@ -182,6 +182,24 @@ public class ImportPackageService implements IImportPackage {
         }
     }
 
+    @Override
+    public ResponseEntity<ImportPackage> updateInforPendingPackage(String _id, ImportPackage importPackageResponse) {
+        try {
+            Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
+            if (existingPackage.isPresent()) {
+                ImportPackage importPackage = existingPackage.get();
+                importPackage.setPackageName(importPackageResponse.getPackageName());
+                importPackage.setNote(importPackageResponse.getNote());
+                importPackageRepos.save(existingPackage.get());
+                return ResponseEntity.ok(existingPackage.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
+        }
+    }
+
     public String approvePendingProduct(ObjectId pendingProductId) {
         String pendingProductIdstr = pendingProductId.toHexString();
         Optional<PendingProduct> pendingProductOpt = pendingProductRepository.findById(pendingProductIdstr);
@@ -204,6 +222,32 @@ public class ImportPackageService implements IImportPackage {
 
             System.out.println("Approved and moved product: " + product.getProductName());
             return product.get_id(); // Trả về ID của sản phẩm mới (String)
+        } else {
+            throw new RuntimeException("Pending product not found with ID: " + pendingProductId);
+        }
+    }
+
+    public String updatePendingProduct(ObjectId pendingProductId, PendingProduct pendingProduct) {
+        String pendingProductIdstr = pendingProductId.toHexString();
+        Optional<PendingProduct> pendingProductOpt = pendingProductRepository.findById(pendingProductIdstr);
+        if (pendingProductOpt.isPresent()) {
+            PendingProduct pendingProductDB = pendingProductOpt.get();
+            pendingProductDB.setProductName(pendingProduct.getProductName());
+            pendingProductDB.setGenreId(pendingProduct.getGenreId());
+            pendingProductDB.setQuantity(pendingProduct.getQuantity());
+            pendingProductDB.setDescription(pendingProduct.getDescription());
+            pendingProductDB.setImportPrice(pendingProduct.getImportPrice());
+            pendingProductDB.setSellingPrice(pendingProduct.getSellingPrice());
+            pendingProductDB.setSupplierId(pendingProduct.getSupplierId());
+            pendingProductDB.setLastUpdated(new Date());
+            pendingProductDB.setImage(pendingProduct.getImage());
+
+
+            // Lưu vào collection Product
+            pendingProductDB = pendingProductRepository.save(pendingProductDB);
+
+            System.out.println("Update successfully pending product: " + pendingProductDB.getProductName());
+            return pendingProduct.getId(); // Trả về ID của sản phẩm mới (String)
         } else {
             throw new RuntimeException("Pending product not found with ID: " + pendingProductId);
         }

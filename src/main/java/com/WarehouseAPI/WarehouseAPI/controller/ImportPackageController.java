@@ -55,6 +55,12 @@ public class ImportPackageController {
         ImportPackageResponse importPackage = importPackageService.getPendingImportPackage(id);
         return new ResponseEntity<>(importPackage, HttpStatus.OK);
     }
+    @PutMapping("/pending/{id}/update")
+    public ResponseEntity<ImportPackage> updatePendingImportPackageById(@PathVariable String id, @RequestBody ImportPackage importPackage1) {
+        ImportPackage importPackage = importPackageService.updateInforPendingPackage(id, importPackage1).getBody();
+        return new ResponseEntity<>(importPackage, HttpStatus.OK);
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ImportPackage> updateImportPackage(@PathVariable String id, @RequestParam("status") String status) {
