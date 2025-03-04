@@ -37,8 +37,6 @@ public class UserService implements IUserService {
     public String updateUser(String _id, User user) {
         User existingUser = userRepository.findById(_id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + _id));
-        existingUser.setUsername(user.getUsername());
-        existingUser.setPasswordHash(user.getPasswordHash());
         existingUser.setInformation(user.getInformation());
         userRepository.save(existingUser);
         return "User updated successfully.";

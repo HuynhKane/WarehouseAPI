@@ -17,9 +17,7 @@ public interface IImportPackage {
     public List<ImportPackageResponse> getAllImportPackages();
     public List<ImportPackageResponse> getAllPendingPackages();
     public List<ImportPackageResponse> getAllDonePackages();
-
-    ResponseEntity<ImportPackage> updateInforPendingPackage(String _id, ImportPackage importPackageResponse);
-
+    ResponseEntity<ImportPackage> updateInforPendingPackage(String _id, ImportPackageResponse importPackageResponse);
     public String approvePendingProduct(ObjectId pendingProductId);
     public ImportPackageResponse getPendingImportPackage(String _id);
 }

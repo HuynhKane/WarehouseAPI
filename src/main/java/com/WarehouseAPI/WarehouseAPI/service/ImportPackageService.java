@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Service
 public class ImportPackageService implements IImportPackage {
@@ -183,22 +184,45 @@ public class ImportPackageService implements IImportPackage {
     }
 
     @Override
-    public ResponseEntity<ImportPackage> updateInforPendingPackage(String _id, ImportPackage importPackageResponse) {
+    public ResponseEntity<ImportPackage> updateInforPendingPackage(String _id, ImportPackageResponse importPackageResponse) {
         try {
-            Optional<ImportPackage> existingPackage = importPackageRepos.findById(_id);
-            if (existingPackage.isPresent()) {
-                ImportPackage importPackage = existingPackage.get();
-                importPackage.setPackageName(importPackageResponse.getPackageName());
-                importPackage.setNote(importPackageResponse.getNote());
-                importPackageRepos.save(existingPackage.get());
-                return ResponseEntity.ok(existingPackage.get());
-            } else {
-                return ResponseEntity.notFound().build();
+            ImportPackage importPackage = importPackageRepos.findById(_id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Import Package not found"));
+            importPackage.setPackageName(importPackageResponse.getPackageName());
+            importPackage.setNote(importPackageResponse.getNote());
+            Map<ObjectId, ProductResponse> productResponseMap = importPackageResponse.getListProducts().stream()
+                    .collect(Collectors.toMap(product -> new ObjectId(product.getId()), product -> product));
+            List<PendingProduct> updatedProducts = new ArrayList<>();
+            for (ObjectId productId : importPackage.getListProducts()) {
+                pendingProductRepository.findById(productId.toHexString()).ifPresent(pendingProduct -> {
+                    ProductResponse productResponse = productResponseMap.get(productId);
+                    if (productResponse != null) {
+                        pendingProduct.setProductName(productResponse.getProductName());
+                        pendingProduct.setGenreId(new ObjectId(productResponse.getGenre().get_id()));
+                        pendingProduct.setQuantity(productResponse.getQuantity());
+                        pendingProduct.setDescription(productResponse.getDescription());
+                        pendingProduct.setImportPrice(productResponse.getImportPrice());
+                        pendingProduct.setSellingPrice(productResponse.getSellingPrice());
+                        pendingProduct.setSupplierId(new ObjectId(productResponse.getSupplier().get_id()));
+                        updatedProducts.add(pendingProduct);
+                    }
+                });
             }
+
+            // Save all updated products at once
+            if (!updatedProducts.isEmpty()) {
+                pendingProductRepository.saveAll(updatedProducts);
+            }
+
+            // Save updated import package
+            importPackageRepos.save(importPackage);
+            return ResponseEntity.ok(importPackage);
+
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
         }
     }
+
 
     public String approvePendingProduct(ObjectId pendingProductId) {
         String pendingProductIdstr = pendingProductId.toHexString();
