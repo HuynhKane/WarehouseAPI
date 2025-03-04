@@ -17,8 +17,9 @@ public class ExportPackageResponse {
     private String deliveryMethod;
     private String statusDone;
     private String note;
-    private List<ProductResponse> listProducts;
+    private List<ProductResponseQuantity> listProducts;
     private BigDecimal totalSellingPrice;
+
 
     public String getId() {
         return id;
@@ -85,11 +86,11 @@ public class ExportPackageResponse {
         this.note = note;
     }
 
-    public List<ProductResponse> getListProducts() {
+    public List<ProductResponseQuantity> getListProducts() {
         return listProducts;
     }
 
-    public void setListProducts(List<ProductResponse> listProducts) {
+    public void setListProducts(List<ProductResponseQuantity> listProducts) {
         this.listProducts = listProducts;
     }
 

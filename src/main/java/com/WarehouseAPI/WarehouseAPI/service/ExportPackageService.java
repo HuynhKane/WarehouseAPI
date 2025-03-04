@@ -1,11 +1,14 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
+import com.WarehouseAPI.WarehouseAPI.dto.ProductResponseQuantity;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductWithQuantity;
 import com.WarehouseAPI.WarehouseAPI.exception.InsufficientStockException;
+import com.WarehouseAPI.WarehouseAPI.model.Customer;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
+import com.WarehouseAPI.WarehouseAPI.model.User;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IExportPackage;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ConvertOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ExportPackageService implements IExportPackage {
@@ -35,6 +40,10 @@ public class ExportPackageService implements IExportPackage {
     private final ProductService productService;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CustomerService customerService;
 
     public ExportPackageService(ExportPackageRepos exportPackageRepos, MongoTemplate mongoTemplate, ProductService productService) {
         this.exportPackageRepos = exportPackageRepos;
@@ -132,24 +141,47 @@ public class ExportPackageService implements IExportPackage {
     @Override
     public ExportPackageResponse getExportPackage(String _id) {
         try {
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
-                    Aggregation.lookup("user", "idSender", "_id", "sender"),
-                    Aggregation.lookup("customer", "customerId", "_id", "customer"),
-                    Aggregation.lookup("product", "listProducts.productId", "_id", "listProducts"),
-                    Aggregation.unwind("sender", true),
-                    Aggregation.unwind("customer", true)
-            );
-            AggregationResults<ExportPackageResponse> result = mongoTemplate.aggregate(
-                    aggregation, "exportPackage", ExportPackageResponse.class);
+            ExportPackageResponse exportPackageResponse = new ExportPackageResponse();
+            exportPackageResponse.setId(_id);
+            Optional<ExportPackage> exportPackageOpt = exportPackageRepos.findById(_id);
+            if (exportPackageOpt.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Export package not found");
 
-            ExportPackageResponse exportPackage = result.getUniqueMappedResult();
-            List<ProductResponse> listProducts = new ArrayList<>();
-            for (ProductResponse product : exportPackage.getListProducts()) {
-                listProducts.add(productService.getProduct(product.getId()));
             }
-            exportPackage.setListProducts(listProducts);
-            return exportPackage;
+            BigDecimal totalPrice = BigDecimal.valueOf(0);
+            exportPackageResponse.setPackageName(exportPackageOpt.get().getPackageName());
+            exportPackageResponse.setExportDate(exportPackageOpt.get().getExportDate());
+            exportPackageResponse.setNote(exportPackageOpt.get().getNote());
+            exportPackageResponse.setDeliveryMethod(exportPackageOpt.get().getDeliveryMethod());
+            List<ProductResponseQuantity> productResponseQuantityList = new ArrayList<>();
+            for (ProductWithQuantity product : exportPackageOpt.get().getListProducts()) {
+                Optional<Product> productOpt = productRepository.findById(String.valueOf(product.getProductId()));
+                if (productOpt.isEmpty()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + product.getProductId());
+                }
+                Product productFromDb = productOpt.get();
+                productFromDb.setQuantity(productFromDb.getQuantity() - product.getQuantity());
+                if (Objects.equals(productFromDb.getQuantity(), 0)){
+                    productFromDb.setInStock(false);
+                }
+                totalPrice = totalPrice.add(productFromDb.getSellingPrice().multiply(BigDecimal.valueOf(product.getQuantity())));
+                productRepository.save(productFromDb);
+                ProductResponseQuantity productResponseQuantity = new ProductResponseQuantity();
+                productResponseQuantity.setProduct(productService.getProduct(String.valueOf(product.getProductId())));
+                productResponseQuantity.setQuantity(product.getQuantity());
+                productResponseQuantityList.add(productResponseQuantity);
+            }
+            exportPackageResponse.setListProducts(productResponseQuantityList);
+            User user = userService.getUser(String.valueOf(exportPackageOpt.get().getIdSender()));
+            exportPackageResponse.setSender(user);
+            Customer customer = customerService.getCustomer(String.valueOf(exportPackageOpt.get().getCustomerId()));
+            exportPackageResponse.setCustomer(customer);
+            exportPackageResponse.setTotalSellingPrice(totalPrice);
+            exportPackageResponse.setStatusDone(exportPackageOpt.get().getStatusDone());
+
+
+
+            return exportPackageResponse;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
         }
@@ -158,40 +190,22 @@ public class ExportPackageService implements IExportPackage {
     @Override
     public List<ExportPackageResponse> getAllExportPackages() {
         try {
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.lookup("user", "idSender", "_id", "sender"),
-                    Aggregation.lookup("customer", "customerId", "_id", "customer"),
-                    Aggregation.lookup("product", "listProducts.productId", "_id", "listProducts"),
-                    Aggregation.unwind("sender", true),
-                    Aggregation.unwind("customer", true)
-            );
-            AggregationResults<ExportPackageResponse> result = mongoTemplate.aggregate(
-                    aggregation, "exportPackage", ExportPackageResponse.class);
-            List<ExportPackageResponse> exportPackages = result.getMappedResults();
-            for (ExportPackageResponse exportPackage : exportPackages) {
-                List<ProductResponse> listProducts = new ArrayList<>();
-                for (ProductResponse product : exportPackage.getListProducts()) {
-                    listProducts.add(productService.getProduct(product.getId()));
-                }
-                exportPackage.setListProducts(listProducts);
-            }
-            return exportPackages;
+            return exportPackageRepos.findAll().stream()
+                    .map(exportPackage -> getExportPackage(exportPackage.getId()))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
         }
     }
+
+
 
     @Override
     public List<ExportPackageResponse> getAllPendingPackages() {
         try {
-            List<ExportPackageResponse> pendingList = new ArrayList<>();
-            List<ExportPackage> packages = new ArrayList<>();
-            for (ExportPackageResponse exportPackage : getAllExportPackages()) {
-                if (Objects.equals(exportPackage.getStatusDone(),"PENDING")){
-                    pendingList.add(exportPackage);
-                }
-            }
-            return pendingList;
+            return getAllExportPackages().stream()
+                    .filter(exportPackage -> Objects.equals(exportPackage.getStatusDone(),"PENDING"))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
         }
@@ -200,13 +214,9 @@ public class ExportPackageService implements IExportPackage {
     @Override
     public List<ExportPackageResponse> getAllDonePackages() {
         try {
-            List<ExportPackageResponse> doneList = new ArrayList<>();
-            for (ExportPackageResponse exportPackage : getAllExportPackages()) {
-                if (!Objects.equals(exportPackage.getStatusDone(),"PENDING")){
-                    doneList.add(exportPackage);
-                }
-            }
-            return doneList;
+            return getAllExportPackages().stream()
+                    .filter(exportPackage -> Objects.equals(exportPackage.getStatusDone(),"APPROVED"))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
         }
