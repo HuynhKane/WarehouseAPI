@@ -265,8 +265,6 @@ public class ImportPackageService implements IImportPackage {
             pendingProductDB.setSupplierId(pendingProduct.getSupplierId());
             pendingProductDB.setLastUpdated(new Date());
             pendingProductDB.setImage(pendingProduct.getImage());
-
-
             // Lưu vào collection Product
             pendingProductDB = pendingProductRepository.save(pendingProductDB);
 

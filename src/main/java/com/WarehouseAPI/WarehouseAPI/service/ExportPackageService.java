@@ -112,16 +112,17 @@ public class ExportPackageService implements IExportPackage {
                                     ", Requested: " + product.getQuantity()
                     );
                 }
-                productFromDb.setQuantity(productFromDb.getQuantity() - product.getQuantity());
-                if (Objects.equals(productFromDb.getQuantity(), 0)){
-                    productFromDb.setInStock(false);
+                else {
+                    productFromDb.setQuantity(productFromDb.getQuantity() - product.getQuantity());
+                    if (Objects.equals(productFromDb.getQuantity(), 0)){
+                        productFromDb.setInStock(false);
+                    }
+                    productRepository.save(productFromDb);
+                    exportPackage.setStatusDone("APPROVED");
+                    exportPackage.setIdSender(new ObjectId("67276a79a0b1c2534dca6e61"));
+                    exportPackageRepos.save(exportPackage);
                 }
-                productRepository.save(productFromDb);
             }
-            exportPackage.setStatusDone("APPROVED");
-            exportPackage.setIdSender(new ObjectId("67276a79a0b1c2534dca6e61"));
-
-            exportPackageRepos.save(exportPackage);
             return ResponseEntity.ok(exportPackage);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error approving export package", e);
