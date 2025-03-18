@@ -15,4 +15,6 @@ public interface IExportPackage {
     public List<ExportPackageResponse> getAllExportPackages();
     public  List<ExportPackageResponse> getAllPendingPackages();
     public List<ExportPackageResponse> getAllDonePackages();
+
+    ResponseEntity<ExportPackage> updateInforPendingPackage(String _id, ExportPackageResponse exportPackageResponse);
 }

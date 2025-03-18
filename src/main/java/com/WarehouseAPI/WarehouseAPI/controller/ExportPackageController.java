@@ -1,8 +1,10 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 
+import com.WarehouseAPI.WarehouseAPI.dto.ImportPackageResponse;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
+import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
 import com.WarehouseAPI.WarehouseAPI.service.ExportPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,10 +34,12 @@ public class ExportPackageController {
         return exportPackageService.approveExportPackage(packageId);
     }
 
-//    @PutMapping("/approve/{packageId}")
-//    public ResponseEntity<ExportPackage> approveExportPackage(@PathVariable String packageId, @RequestParam("idSender") String idSender) {
-//        return exportPackageService.approveExportPackage(packageId, idSender);
-//    }
+    @PutMapping("/pending/{id}/update")
+    public ResponseEntity<ExportPackage> updatePendingExportPackageById(@PathVariable String id, @RequestBody ExportPackageResponse packageResponse) {
+        ExportPackage exportPackage = exportPackageService.updateInforPendingPackage(id, packageResponse).getBody();
+        return new ResponseEntity<>(exportPackage, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<List<ExportPackageResponse>> getAllExportPackages() {
         List<ExportPackageResponse> exportPackages = exportPackageService.getAllExportPackages();

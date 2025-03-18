@@ -1,24 +1,14 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
-import com.WarehouseAPI.WarehouseAPI.dto.ProductResponseQuantity;
-import com.WarehouseAPI.WarehouseAPI.dto.ProductWithQuantity;
+import com.WarehouseAPI.WarehouseAPI.dto.*;
 import com.WarehouseAPI.WarehouseAPI.exception.InsufficientStockException;
-import com.WarehouseAPI.WarehouseAPI.model.Customer;
-import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
-import com.WarehouseAPI.WarehouseAPI.dto.ExportPackageResponse;
-import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
-import com.WarehouseAPI.WarehouseAPI.model.Product;
-import com.WarehouseAPI.WarehouseAPI.model.User;
+import com.WarehouseAPI.WarehouseAPI.model.*;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IExportPackage;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.ConvertOperators;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -220,6 +210,53 @@ public class ExportPackageService implements IExportPackage {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting export packages", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<ExportPackage> updateInforPendingPackage(String _id, ExportPackageResponse exportPackageResponse) {
+        try {
+            ExportPackage exportPackage = exportPackageRepos.findById(_id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Export Package not found"));
+
+            ////////
+            exportPackage.setPackageName(exportPackageResponse.getPackageName());
+            exportPackage.setNote(exportPackageResponse.getNote());
+            exportPackage.setDeliveryMethod(exportPackageResponse.getDeliveryMethod());
+            exportPackage.setIdSender(new ObjectId(exportPackageResponse.getSender().get_id()));
+            exportPackage.setCustomerId(new ObjectId(exportPackageResponse.getCustomer().getId()));
+            /////////
+            Map<ObjectId, ProductResponseQuantity> productResponseMap = exportPackageResponse.getListProducts().stream()
+                    .collect(Collectors.toMap(product -> new ObjectId(product.getProduct().getId()), product -> product));
+            List<Product> updatedProducts = new ArrayList<>();
+            for (ProductWithQuantity productWithQuantity : exportPackage.getListProducts()) {
+                productRepository.findById(productWithQuantity.getProductId().toHexString()).ifPresent(pendingProduct -> {
+                    ProductResponseQuantity productResponse = productResponseMap.get(productWithQuantity.getProductId());
+                    ProductResponse productResponse1 = productResponse.getProduct();
+                    if (productResponse1 != null) {
+                        pendingProduct.setProductName(productResponse1.getProductName());
+                        pendingProduct.setGenreId(new ObjectId(productResponse1.getGenre().get_id()));
+                        pendingProduct.setQuantity(productResponse1.getQuantity());
+                        pendingProduct.setDescription(productResponse1.getDescription());
+                        pendingProduct.setImportPrice(productResponse1.getImportPrice());
+                        pendingProduct.setSellingPrice(productResponse1.getSellingPrice());
+                        pendingProduct.setSupplierId(new ObjectId(productResponse1.getSupplier().get_id()));
+                        updatedProducts.add(pendingProduct);
+                    }
+                });
+            }
+
+            // Save all updated products at once
+            if (!updatedProducts.isEmpty()) {
+                productRepository.saveAll(updatedProducts);
+            }
+
+            // Save updated import package
+            exportPackageRepos.save(exportPackage);
+            return ResponseEntity.ok(exportPackage);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error updating import package", e);
         }
     }
 }
