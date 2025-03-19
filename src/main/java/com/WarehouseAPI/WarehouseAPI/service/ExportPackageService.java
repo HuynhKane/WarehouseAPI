@@ -226,31 +226,15 @@ public class ExportPackageService implements IExportPackage {
             exportPackage.setIdSender(new ObjectId(exportPackageResponse.getSender().get_id()));
             exportPackage.setCustomerId(new ObjectId(exportPackageResponse.getCustomer().getId()));
             /////////
-            Map<ObjectId, ProductResponseQuantity> productResponseMap = exportPackageResponse.getListProducts().stream()
-                    .collect(Collectors.toMap(product -> new ObjectId(product.getProduct().getId()), product -> product));
-            List<Product> updatedProducts = new ArrayList<>();
-            for (ProductWithQuantity productWithQuantity : exportPackage.getListProducts()) {
-                productRepository.findById(productWithQuantity.getProductId().toHexString()).ifPresent(pendingProduct -> {
-                    ProductResponseQuantity productResponse = productResponseMap.get(productWithQuantity.getProductId());
-                    ProductResponse productResponse1 = productResponse.getProduct();
-                    if (productResponse1 != null) {
-                        pendingProduct.setProductName(productResponse1.getProductName());
-                        pendingProduct.setGenreId(new ObjectId(productResponse1.getGenre().get_id()));
-                        pendingProduct.setQuantity(productResponse1.getQuantity());
-                        pendingProduct.setDescription(productResponse1.getDescription());
-                        pendingProduct.setImportPrice(productResponse1.getImportPrice());
-                        pendingProduct.setSellingPrice(productResponse1.getSellingPrice());
-                        pendingProduct.setSupplierId(new ObjectId(productResponse1.getSupplier().get_id()));
-                        updatedProducts.add(pendingProduct);
-                    }
-                });
+            List<ProductWithQuantity> updatedProducts = new ArrayList<>();
+            for (ProductResponseQuantity product : exportPackageResponse.getListProducts()) {
+                ProductWithQuantity productWithQuantity = new ProductWithQuantity();
+                productWithQuantity.setQuantity(product.getQuantity());
+                productWithQuantity.setProductId(new ObjectId(product.getProduct().getId()));
+                updatedProducts.add(productWithQuantity);
             }
-
-            // Save all updated products at once
-            if (!updatedProducts.isEmpty()) {
-                productRepository.saveAll(updatedProducts);
-            }
-
+            //
+            exportPackage.setListProducts(updatedProducts);
             // Save updated import package
             exportPackageRepos.save(exportPackage);
             return ResponseEntity.ok(exportPackage);
