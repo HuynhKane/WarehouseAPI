@@ -151,10 +151,6 @@ public class ExportPackageService implements IExportPackage {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + product.getProductId());
                 }
                 Product productFromDb = productOpt.get();
-                productFromDb.setQuantity(productFromDb.getQuantity() - product.getQuantity());
-                if (Objects.equals(productFromDb.getQuantity(), 0)){
-                    productFromDb.setInStock(false);
-                }
                 totalPrice = totalPrice.add(productFromDb.getSellingPrice().multiply(BigDecimal.valueOf(product.getQuantity())));
                 productRepository.save(productFromDb);
                 ProductResponseQuantity productResponseQuantity = new ProductResponseQuantity();
