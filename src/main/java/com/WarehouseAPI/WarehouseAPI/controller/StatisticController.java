@@ -1,9 +1,10 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import com.WarehouseAPI.WarehouseAPI.service.StatisticService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
+
+import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -60,5 +61,21 @@ public class StatisticController {
         }
 
         return statisticService.getGroupedImportStatistics(start, end, chronoUnit);
+    }
+    @GetMapping("/top-genres-imported")
+    public List<Map<String, Object>> getTopGenresImported(
+            @RequestParam(required = false) Long startDate,
+            @RequestParam(required = false) Long endDate,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return statisticService.getTopGenresImported(Pair.of(startDate, endDate), limit);
+    }
+    @GetMapping("/top-genres-exported")
+    public List<Map<String, Object>> getTopGenresEported(
+            @RequestParam(required = false) Long startDate,
+            @RequestParam(required = false) Long endDate,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return statisticService.getTopGenresExported(Pair.of(startDate, endDate), limit);
     }
 }
