@@ -96,7 +96,7 @@ public class StatisticService implements IStatisticService {
                 Aggregation.unwind("productDetails"),
                 Aggregation.group("productDetails.genreId")
                         .sum("productDetails.quantity").as("total"), // Sum actual product quantities
-                Aggregation.sort(Sort.Direction.DESC, "totalImported"),
+                Aggregation.sort(Sort.Direction.DESC, "total"),
                 Aggregation.limit(topN),
                 Aggregation.lookup("genre", "_id", "_id", "genreDetails"), // Lookup genre info
                 Aggregation.unwind("genreDetails") // Extract genre name
@@ -140,7 +140,7 @@ public class StatisticService implements IStatisticService {
                 Aggregation.unwind("productDetails"),
                 Aggregation.group("productDetails.genreId")
                         .sum("listProducts.quantity").as("total"),
-                Aggregation.sort(Sort.Direction.DESC, "totalExported"),
+                Aggregation.sort(Sort.Direction.DESC, "total"),
                 Aggregation.limit(topN),
                 Aggregation.lookup("genre", "_id", "_id", "genreDetails"),
                 Aggregation.unwind("genreDetails")
@@ -156,7 +156,29 @@ public class StatisticService implements IStatisticService {
                 ))
                 .collect(Collectors.toList());
     }
-    public List<Map<String, Object>> getRevenueAndCostSummary(String groupBy, Pair<Long, Long> dateRange) {
-        return exportPackageRepos.getRevenueByDateRange(dateRange.getFirst(), dateRange.getSecond());
+    public Double getTotalRevenue(String groupy, Pair<Long, Long> dateRange) {
+        Long startMillis = dateRange.getFirst();
+        Long endMillis = dateRange.getSecond();
+        // Điều kiện lọc: chỉ lấy các đơn hàng APPROVED trong khoảng thời gian exportDate
+        Criteria criteria = new Criteria().andOperator(
+                Criteria.where("exportDate").gte(startMillis).lte(endMillis),
+                Criteria.where("statusDone").is("APPROVED")
+        );
+
+        // Aggregation pipeline
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.group().sum("totalSellingPrice").as("totalRevenue")
+        );
+
+        // Thực hiện Aggregation
+        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "exportPackage", Document.class);
+
+        // Lấy kết quả
+        List<Document> mappedResults = results.getMappedResults();
+        if (!mappedResults.isEmpty()) {
+            return mappedResults.get(0).getDouble("totalRevenue");
+        }
+        return 0.0;
     }
 }
