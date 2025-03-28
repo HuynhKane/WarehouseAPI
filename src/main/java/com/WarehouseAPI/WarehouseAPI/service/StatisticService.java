@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.dto.ImportStatistic;
+import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.StatisticRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStatisticService;
 import org.bson.Document;
@@ -12,6 +13,8 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.util.Pair;
+
+
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -19,6 +22,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +35,8 @@ public class StatisticService implements IStatisticService {
     @Autowired
     private StatisticRepository statisticRepository;
     private final MongoTemplate mongoTemplate;
+    @Autowired
+    private ExportPackageRepos exportPackageRepos;
 
     public StatisticService(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -88,7 +95,7 @@ public class StatisticService implements IStatisticService {
                 Aggregation.lookup("product", "listProducts", "_id", "productDetails"), // Lookup product details
                 Aggregation.unwind("productDetails"),
                 Aggregation.group("productDetails.genreId")
-                        .sum("productDetails.quantity").as("totalImported"), // Sum actual product quantities
+                        .sum("productDetails.quantity").as("total"), // Sum actual product quantities
                 Aggregation.sort(Sort.Direction.DESC, "totalImported"),
                 Aggregation.limit(topN),
                 Aggregation.lookup("genre", "_id", "_id", "genreDetails"), // Lookup genre info
@@ -101,7 +108,7 @@ public class StatisticService implements IStatisticService {
                 .map(doc -> Map.<String, Object>of(
                         "genreId", doc.getObjectId("_id").toString(),  // Convert ObjectId to String
                         "genreName", doc.get("genreDetails", Document.class).getString("genreName"),  // Extract genre name
-                        "totalImported", doc.getInteger("totalImported", 0) // Use correct total imported quantity
+                        "total", doc.getInteger("total", 0) // Use correct total imported quantity
                 ))
                 .collect(Collectors.toList());
     }
@@ -132,7 +139,7 @@ public class StatisticService implements IStatisticService {
                 Aggregation.lookup("product", "listProducts.productId", "_id", "productDetails"),
                 Aggregation.unwind("productDetails"),
                 Aggregation.group("productDetails.genreId")
-                        .sum("listProducts.quantity").as("totalExported"),
+                        .sum("listProducts.quantity").as("total"),
                 Aggregation.sort(Sort.Direction.DESC, "totalExported"),
                 Aggregation.limit(topN),
                 Aggregation.lookup("genre", "_id", "_id", "genreDetails"),
@@ -145,9 +152,11 @@ public class StatisticService implements IStatisticService {
                 .map(doc -> Map.<String, Object>of(
                         "genreId", doc.getObjectId("_id").toString(),
                         "genreName", doc.get("genreDetails", Document.class).getString("genreName"),
-                        "totalExported", doc.getInteger("totalExported", 0)
+                        "total", doc.getInteger("total", 0)
                 ))
                 .collect(Collectors.toList());
     }
-
+    public List<Map<String, Object>> getRevenueAndCostSummary(String groupBy, Pair<Long, Long> dateRange) {
+        return exportPackageRepos.getRevenueByDateRange(dateRange.getFirst(), dateRange.getSecond());
+    }
 }

@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
+import com.WarehouseAPI.WarehouseAPI.service.ExportPackageService;
 import com.WarehouseAPI.WarehouseAPI.service.StatisticService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 
@@ -21,11 +22,13 @@ public class StatisticController {
 
     private final IProductService productService;
     private final StatisticService statisticService;
+    private final ExportPackageService exportPackageService;
 
 
-    public StatisticController(IProductService productService, StatisticService statisticService) {
+    public StatisticController(IProductService productService, StatisticService statisticService, ExportPackageService exportPackageService) {
         this.productService = productService;
         this.statisticService = statisticService;
+        this.exportPackageService = exportPackageService;
     }
 
     @GetMapping("/in-stock")
@@ -77,5 +80,14 @@ public class StatisticController {
             @RequestParam(defaultValue = "10") int limit
     ) {
         return statisticService.getTopGenresExported(Pair.of(startDate, endDate), limit);
+    }
+    @GetMapping("/summary")
+    public List<Map<String, Object>> getRevenueAndCostSummary(
+            @RequestParam String groupBy,
+            @RequestParam long startDate,
+            @RequestParam long endDate) {
+
+        Pair<Long, Long> dateRange = Pair.of(startDate, endDate);
+        return statisticService.getRevenueAndCostSummary(groupBy, dateRange);
     }
 }
