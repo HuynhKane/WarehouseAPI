@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,12 +83,20 @@ public class StatisticController {
         return statisticService.getTopGenresExported(Pair.of(startDate, endDate), limit);
     }
     @GetMapping("/summary")
-    public List<Map<String, Object>> getRevenueAndCostSummary(
+    public Map<String, Object> getRevenueAndCostSummary(
             @RequestParam String groupBy,
             @RequestParam long startDate,
             @RequestParam long endDate) {
 
         Pair<Long, Long> dateRange = Pair.of(startDate, endDate);
-        return statisticService.getRevenueAndCostSummary(groupBy, dateRange);
+        Double totalRevenue = statisticService.getTotalRevenue(groupBy, dateRange);
+
+        // Create a JSON response using a Map
+        Map<String, Object> response = new HashMap<>();
+        response.put("startDate", startDate);
+        response.put("endDate", endDate);
+        response.put("totalRevenue", totalRevenue);
+
+        return response;
     }
 }
