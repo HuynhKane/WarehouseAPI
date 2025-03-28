@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.dto.ImportStatistic;
+import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.StatisticRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStatisticService;
@@ -17,15 +18,11 @@ import org.springframework.data.util.Pair;
 
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.math.BigDecimal;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,29 +153,38 @@ public class StatisticService implements IStatisticService {
                 ))
                 .collect(Collectors.toList());
     }
-    public Double getTotalRevenue(String groupy, Pair<Long, Long> dateRange) {
-        Long startMillis = dateRange.getFirst();
-        Long endMillis = dateRange.getSecond();
-        // Điều kiện lọc: chỉ lấy các đơn hàng APPROVED trong khoảng thời gian exportDate
-        Criteria criteria = new Criteria().andOperator(
-                Criteria.where("exportDate").gte(startMillis).lte(endMillis),
-                Criteria.where("statusDone").is("APPROVED")
-        );
 
-        // Aggregation pipeline
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(criteria),
-                Aggregation.group().sum("totalSellingPrice").as("totalRevenue")
-        );
+    public List<MonthlyRevenue> getMonthlyRevenueByYear(int year) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year, 12, 31);
 
-        // Thực hiện Aggregation
-        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "exportPackage", Document.class);
+        Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        // Lấy kết quả
-        List<Document> mappedResults = results.getMappedResults();
-        if (!mappedResults.isEmpty()) {
-            return mappedResults.get(0).getDouble("totalRevenue");
+        // Lấy dữ liệu từ MongoDB
+        List<MonthlyRevenue> revenueData =exportPackageRepos.getMonthlyRevenueByYear(start, end);
+
+        // Tạo danh sách mặc định với giá trị 0 cho tất cả các tháng
+        Map<Integer, BigDecimal> revenueMap = new HashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            revenueMap.put(i, BigDecimal.ZERO);
         }
-        return 0.0;
+
+        // Gán dữ liệu từ MongoDB vào danh sách
+        for (MonthlyRevenue data : revenueData) {
+            revenueMap.put(data.getMonth(), data.getTotalRevenue());
+        }
+
+        // Chuyển thành danh sách kết quả
+        List<MonthlyRevenue> result = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            MonthlyRevenue revenue = new MonthlyRevenue();
+            revenue.setMonth(i);
+            revenue.setTotalRevenue(revenueMap.get(i));
+            result.add(revenue);
+        }
+
+        return result;
     }
+
 }

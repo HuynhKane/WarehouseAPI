@@ -1,15 +1,13 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
+import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import com.WarehouseAPI.WarehouseAPI.service.ExportPackageService;
 import com.WarehouseAPI.WarehouseAPI.service.StatisticService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 
 import org.springframework.data.util.Pair;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -82,21 +80,10 @@ public class StatisticController {
     ) {
         return statisticService.getTopGenresExported(Pair.of(startDate, endDate), limit);
     }
-    @GetMapping("/summary")
-    public Map<String, Object> getRevenueAndCostSummary(
-            @RequestParam String groupBy,
-            @RequestParam long startDate,
-            @RequestParam long endDate) {
 
-        Pair<Long, Long> dateRange = Pair.of(startDate, endDate);
-        Double totalRevenue = statisticService.getTotalRevenue(groupBy, dateRange);
-
-        // Create a JSON response using a Map
-        Map<String, Object> response = new HashMap<>();
-        response.put("startDate", startDate);
-        response.put("endDate", endDate);
-        response.put("totalRevenue", totalRevenue);
-
-        return response;
+    @GetMapping("/monthly-revenue/{year}")
+    public List<MonthlyRevenue> getMonthlyRevenue(@PathVariable int year) {
+        return statisticService.getMonthlyRevenueByYear(year);
     }
+
 }
