@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
 import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
+import com.WarehouseAPI.WarehouseAPI.dto.PackageInfo;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import com.WarehouseAPI.WarehouseAPI.service.ExportPackageService;
 import com.WarehouseAPI.WarehouseAPI.service.StatisticService;
@@ -84,6 +85,12 @@ public class StatisticController {
     @GetMapping("/monthly-revenue/{year}")
     public List<MonthlyRevenue> getMonthlyRevenue(@PathVariable int year) {
         return statisticService.getMonthlyRevenueByYear(year);
+    }
+
+    // 2️⃣ API lấy danh sách ExportPackage theo tháng
+    @GetMapping("/monthly-revenue/{year}/{month}")
+    public List<PackageInfo> getPackagesByMonth(@PathVariable int year, @PathVariable int month) {
+        return statisticService.getExportPackagesByMonth(year, month);
     }
 
 }

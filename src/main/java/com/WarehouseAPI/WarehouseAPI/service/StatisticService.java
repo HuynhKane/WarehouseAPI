@@ -2,6 +2,7 @@ package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.dto.ImportStatistic;
 import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
+import com.WarehouseAPI.WarehouseAPI.dto.PackageInfo;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.StatisticRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStatisticService;
@@ -185,6 +186,16 @@ public class StatisticService implements IStatisticService {
         }
 
         return result;
+    }
+
+    public List<PackageInfo> getExportPackagesByMonth(int year, int month) {
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.plusMonths(1);
+
+        Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        return exportPackageRepos.getExportPackagesByMonth(start, end);
     }
 
 }

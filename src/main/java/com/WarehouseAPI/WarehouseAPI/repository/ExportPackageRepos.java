@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.repository;
 
 import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
+import com.WarehouseAPI.WarehouseAPI.dto.PackageInfo;
 import com.WarehouseAPI.WarehouseAPI.model.ExportPackage;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -20,5 +21,10 @@ public interface ExportPackageRepos extends MongoRepository<ExportPackage, Strin
     })
     List<MonthlyRevenue> getMonthlyRevenueByYear(Date startDate, Date endDate);
 
-
+    @Aggregation(pipeline = {
+            "{ $match: { statusDone: 'APPROVED', exportDate: { $gte: ?0, $lt: ?1 } } }",
+            "{ $project: { _id: 1, packageName: 1, totalSellingPrice: { $toDouble: '$totalSellingPrice' } } }",
+            "{ $sort: { totalSellingPrice: -1 } }"
+    })
+    List<PackageInfo> getExportPackagesByMonth(Date startDate, Date endDate);
 }
