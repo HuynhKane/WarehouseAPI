@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
+import com.WarehouseAPI.WarehouseAPI.dto.MonthlyCost;
 import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
 import com.WarehouseAPI.WarehouseAPI.dto.PackageInfo;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
@@ -91,6 +92,10 @@ public class StatisticController {
     @GetMapping("/monthly-revenue/{year}/{month}")
     public List<PackageInfo> getPackagesByMonth(@PathVariable int year, @PathVariable int month) {
         return statisticService.getExportPackagesByMonth(year, month);
+    }
+    @GetMapping("/monthly-cost/{year}")
+    public List<MonthlyCost> getMonthlyCost(@PathVariable int year) {
+        return statisticService.getMonthlyCostByYear(year);
     }
 
 }

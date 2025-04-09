@@ -1,9 +1,11 @@
 package com.WarehouseAPI.WarehouseAPI.service;
 
 import com.WarehouseAPI.WarehouseAPI.dto.ImportStatistic;
+import com.WarehouseAPI.WarehouseAPI.dto.MonthlyCost;
 import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
 import com.WarehouseAPI.WarehouseAPI.dto.PackageInfo;
 import com.WarehouseAPI.WarehouseAPI.repository.ExportPackageRepos;
+import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.StatisticRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStatisticService;
 import org.bson.Document;
@@ -35,6 +37,8 @@ public class StatisticService implements IStatisticService {
     private final MongoTemplate mongoTemplate;
     @Autowired
     private ExportPackageRepos exportPackageRepos;
+    @Autowired
+    private ImportPackageRepos importPackageRepos;
 
     public StatisticService(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -187,6 +191,36 @@ public class StatisticService implements IStatisticService {
 
         return result;
     }
+    public List<MonthlyCost> getMonthlyCostByYear(int year) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year + 1, 1, 1);
+
+        Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        List<MonthlyCost> costData = importPackageRepos.getMonthlyCostByYear(start, end);
+
+        Map<Integer, BigDecimal> costMap = new HashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            costMap.put(i, BigDecimal.ZERO);
+        }
+
+        for (MonthlyCost data : costData) {
+            BigDecimal cost = data.getTotalCost() != null ? data.getTotalCost() : BigDecimal.ZERO;
+            costMap.put(data.getMonth(), cost);
+        }
+
+        List<MonthlyCost> result = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            MonthlyCost cost = new MonthlyCost();
+            cost.setMonth(i);
+            cost.setTotalCost(costMap.get(i));
+            result.add(cost);
+        }
+
+        return result;
+    }
+
 
     public List<PackageInfo> getExportPackagesByMonth(int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
