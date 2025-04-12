@@ -1,6 +1,7 @@
 package com.WarehouseAPI.WarehouseAPI.repository;
 
 import com.WarehouseAPI.WarehouseAPI.dto.MonthlyCost;
+import com.WarehouseAPI.WarehouseAPI.dto.PackageImportDetails;
 import com.WarehouseAPI.WarehouseAPI.model.ImportPackage;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -31,6 +32,32 @@ public interface ImportPackageRepos extends MongoRepository<ImportPackage, Strin
             "{ $sort: { month: 1 } }"
     })
     List<MonthlyCost> getMonthlyCostByYear(Date startDate, Date endDate);
+
+    @Aggregation(pipeline = {
+            // Bước 1: Lọc theo tháng và năm
+            "{ $match: { statusDone: 'APPROVED', " +
+                    "importDate: { $gte: ?0, $lt: ?1 } } }",
+
+            // Bước 2: Join với collection product để lấy importPrice
+            "{ $lookup: { from: 'product', localField: 'listProducts', foreignField: '_id', as: 'productList' } }",
+
+            // Bước 3: Tách từng sản phẩm trong list
+            "{ $unwind: '$productList' }",
+
+            // Bước 4: Tính total import price cho mỗi package
+            "{ $addFields: { totalImportPrice: { $multiply: [ { $toDouble: '$productList.importPrice' }, '$productList.quantity' ] } } }",
+
+            // Bước 5: Group theo packageId và packageName
+            "{ $group: { _id: { packageId: '$_id', packageName: '$packageName', importDate: '$importDate' }, totalImportPrice: { $sum: '$totalImportPrice' } } }",
+
+            // Bước 6: Format kết quả
+            "{ $project: { _id: 0, packageId: '$_id.packageId', packageName: '$_id.packageName',importDate: '$_id.importDate', totalImportPrice: 1 } }"
+    })
+    List<PackageImportDetails> getPackageImportDetailsByMonth(Date startDate, Date endDate);
+
+
+
+
 
 }
 

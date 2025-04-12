@@ -1,9 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.dto.MonthlyCost;
-import com.WarehouseAPI.WarehouseAPI.dto.MonthlyRevenue;
-import com.WarehouseAPI.WarehouseAPI.dto.PackageInfo;
-import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
+import com.WarehouseAPI.WarehouseAPI.dto.*;
 import com.WarehouseAPI.WarehouseAPI.service.ExportPackageService;
 import com.WarehouseAPI.WarehouseAPI.service.StatisticService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,12 +86,19 @@ public class StatisticController {
 
     // 2️⃣ API lấy danh sách ExportPackage theo tháng
     @GetMapping("/monthly-revenue/{year}/{month}")
-    public List<PackageInfo> getPackagesByMonth(@PathVariable int year, @PathVariable int month) {
+    public List<ExportPackageInfo> getPackagesByMonth(@PathVariable int year, @PathVariable int month) {
         return statisticService.getExportPackagesByMonth(year, month);
     }
     @GetMapping("/monthly-cost/{year}")
     public List<MonthlyCost> getMonthlyCost(@PathVariable int year) {
         return statisticService.getMonthlyCostByYear(year);
     }
+
+    @GetMapping("/monthly-cost/{year}/{month}")
+    public List<PackageImportDetails> getMonthlyCost(@PathVariable int year, @PathVariable int month) {
+        return statisticService.getImportPackagesByMonth(year,month);
+    }
+
+
 
 }
