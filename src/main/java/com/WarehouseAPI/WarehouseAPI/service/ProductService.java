@@ -1,10 +1,12 @@
 package com.WarehouseAPI.WarehouseAPI.service;
+import com.WarehouseAPI.WarehouseAPI.embeddings.EmbeddingService;
 import com.WarehouseAPI.WarehouseAPI.model.Notification;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -12,6 +14,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -35,6 +40,9 @@ public class ProductService  implements IProductService {
     private final SimpMessagingTemplate messagingTemplate;
     private NotificationService notificationService;
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+    @Autowired
+    private EmbeddingService embeddingService;
 
     public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate, SimpMessagingTemplate messagingTemplate, NotificationService notificationService){
         this.productRepository = productRepository;
@@ -143,6 +151,22 @@ public class ProductService  implements IProductService {
             );
             AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
                     aggregation, "product", ProductResponse.class);
+
+
+            Product product = productRepository.findById(_id).get();
+            List<Double> embedding = embeddingService.getEmbedding(product.toString());
+
+            // Ghi lại embedding
+            Query query = new Query(Criteria.where("_id").is(product.get_id()));
+            Update update = new Update()
+                    .set("embedding", embedding)
+                    .set("lastEmbeddingUpdate", new Date());
+
+            mongoTemplate.updateFirst(query, update, Product.class);
+
+
+
+
             return result.getUniqueMappedResult();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);

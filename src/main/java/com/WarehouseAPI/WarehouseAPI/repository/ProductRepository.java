@@ -33,5 +33,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     })
     List<StorageLocationSummary> getStockSummaryByLocation();
     long countBy_idIn(List<String> ids);
+    List<Product> findByQuantityLessThan(int quantity);
 
 }

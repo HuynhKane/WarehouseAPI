@@ -43,8 +43,6 @@ dependencies {
 
 	// Spring Boot Test for testing
 	testImplementation ("org.springframework.boot:spring-boot-starter-test")
-
-	implementation ("dev.langchain4j:langchain4j:1.0.0-beta2")
 	// https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-open-ai
 	implementation("dev.langchain4j:langchain4j-open-ai:1.0.0-beta2")
  	// https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-embeddings
@@ -59,6 +57,17 @@ dependencies {
 	implementation("dev.langchain4j:langchain4j-hugging-face:0.24.0")
 	// Java library for Apache PDFBox Document Parser
 	implementation("dev.langchain4j:langchain4j-document-parser-apache-pdfbox:0.32.0")
+	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
+	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+	// https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
+	implementation("io.swagger.core.v3:swagger-annotations:2.2.15")
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-webflux
+	implementation("org.springframework.boot:spring-boot-starter-webflux:3.3.3")
+
+	// https://mvnrepository.com/artifact/dev.langchain4j/langchain4j
+	implementation("dev.langchain4j:langchain4j:0.24.0")
+
 
 
 }

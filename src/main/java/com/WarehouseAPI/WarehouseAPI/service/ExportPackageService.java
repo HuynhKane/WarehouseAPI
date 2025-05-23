@@ -65,16 +65,12 @@ public class ExportPackageService implements IExportPackage {
                     BigDecimal quantity = BigDecimal.valueOf(productResponse.getQuantity());
                     totalPrice = totalPrice.add(product1.getSellingPrice().multiply(quantity));
                 }
-
-                
                 product.setQuantity(productResponse.getQuantity());
                 productIdList.add(product);
             }
             exportPackage_save.setListProducts(productIdList);
             exportPackage_save.setTotalSellingPrice(totalPrice);
             exportPackageRepos.save(exportPackage_save);
-
-
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error adding export package", e);
         }
