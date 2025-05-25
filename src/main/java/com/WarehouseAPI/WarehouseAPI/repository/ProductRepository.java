@@ -4,6 +4,8 @@ import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -34,5 +36,8 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     List<StorageLocationSummary> getStockSummaryByLocation();
     long countBy_idIn(List<String> ids);
     List<Product> findByQuantityLessThan(int quantity);
+    List<Product> findByStorageLocationId(Long storageLocationId);
+
+
 
 }

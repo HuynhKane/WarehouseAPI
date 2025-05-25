@@ -166,6 +166,35 @@ public class StatisticService implements IStatisticService {
         // Lấy dữ liệu từ MongoDB
         List<MonthlyRevenue> revenueData =exportPackageRepos.getMonthlyRevenueByYear(start, end);
 
+        Map<Integer, BigDecimal> revenueMap = new HashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            revenueMap.put(i, BigDecimal.ZERO);
+        }
+
+        for (MonthlyRevenue data : revenueData) {
+            revenueMap.put(data.getMonth(), data.getTotalRevenue());
+        }
+
+        List<MonthlyRevenue> result = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            MonthlyRevenue revenue = new MonthlyRevenue();
+            revenue.setMonth(i);
+            revenue.setTotalRevenue(revenueMap.get(i));
+            result.add(revenue);
+        }
+
+        return result;
+    }
+    public Double getYearlyRevenue(int year) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year, 12, 31);
+
+        Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // Lấy dữ liệu từ MongoDB
+        List<MonthlyRevenue> revenueData =exportPackageRepos.getMonthlyRevenueByYear(start, end);
+
         // Tạo danh sách mặc định với giá trị 0 cho tất cả các tháng
         Map<Integer, BigDecimal> revenueMap = new HashMap<>();
         for (int i = 1; i <= 12; i++) {
@@ -177,16 +206,12 @@ public class StatisticService implements IStatisticService {
             revenueMap.put(data.getMonth(), data.getTotalRevenue());
         }
 
-        // Chuyển thành danh sách kết quả
-        List<MonthlyRevenue> result = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
         for (int i = 1; i <= 12; i++) {
-            MonthlyRevenue revenue = new MonthlyRevenue();
-            revenue.setMonth(i);
-            revenue.setTotalRevenue(revenueMap.get(i));
-            result.add(revenue);
+            total = total.add(revenueMap.get(i));
         }
 
-        return result;
+        return total.doubleValue();
     }
     public List<MonthlyCost> getMonthlyCostByYear(int year) {
         LocalDate startDate = LocalDate.of(year, 1, 1);
@@ -218,6 +243,33 @@ public class StatisticService implements IStatisticService {
         return result;
     }
 
+    public Double getYearlyCost(int year) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year + 1, 1, 1);
+
+        Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        List<MonthlyCost> costData = importPackageRepos.getMonthlyCostByYear(start, end);
+
+        Map<Integer, BigDecimal> costMap = new HashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            costMap.put(i, BigDecimal.ZERO);
+        }
+
+        for (MonthlyCost data : costData) {
+            BigDecimal cost = data.getTotalCost() != null ? data.getTotalCost() : BigDecimal.ZERO;
+            costMap.put(data.getMonth(), cost);
+        }
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (int i = 1; i <= 12; i++) {
+            total = total.add(costMap.get(i));
+        }
+
+        return total.doubleValue();
+    }
+
 
     public List<ExportPackageInfo> getExportPackagesByMonth(int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
@@ -237,6 +289,31 @@ public class StatisticService implements IStatisticService {
 
         return importPackageRepos.getPackageImportDetailsByMonth(start, end);
     }
+
+
+    public YearlyFinance getRevenueVsCost(int year) {
+        List<MonthlyCost> costs = getMonthlyCostByYear(year);
+        List<MonthlyRevenue> revenues = getMonthlyRevenueByYear(year);
+
+        Map<Integer, MonthlyFinance> months = new HashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            BigDecimal cost = costs.get(i - 1).getTotalCost();
+            BigDecimal revenue = revenues.get(i - 1).getTotalRevenue();
+
+            MonthlyFinance mf = new MonthlyFinance();
+            mf.setCost(cost);
+            mf.setRevenue(revenue);
+            mf.setProfit(revenue.compareTo(cost) >= 0);
+
+            months.put(i, mf);
+        }
+
+        YearlyFinance response = new YearlyFinance();
+        response.setYear(year);
+        response.setMonths(months);
+        return response;
+    }
+
 
 
 }

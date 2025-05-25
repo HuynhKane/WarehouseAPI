@@ -1,10 +1,14 @@
 package com.WarehouseAPI.WarehouseAPI.service;
+import com.WarehouseAPI.WarehouseAPI.dto.ProductByStorageResponse;
 import com.WarehouseAPI.WarehouseAPI.embeddings.EmbeddingService;
 import com.WarehouseAPI.WarehouseAPI.model.Notification;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
+import com.WarehouseAPI.WarehouseAPI.repository.GenreRepository;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
+import com.WarehouseAPI.WarehouseAPI.repository.StorageLocationRepository;
+import com.WarehouseAPI.WarehouseAPI.repository.SupplierRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 
 import org.bson.types.ObjectId;
@@ -29,6 +33,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -43,6 +48,12 @@ public class ProductService  implements IProductService {
 
     @Autowired
     private EmbeddingService embeddingService;
+    @Autowired
+    private GenreRepository genreRepository;
+    @Autowired
+    private SupplierRepository supplierRepository;
+    @Autowired
+    private StorageLocationRepository storageLocationRepository;
 
     public ProductService(ProductRepository productRepository, MongoTemplate mongoTemplate, SimpMessagingTemplate messagingTemplate, NotificationService notificationService){
         this.productRepository = productRepository;
@@ -172,26 +183,66 @@ public class ProductService  implements IProductService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);
         }
     }
+    public List<ProductResponse> getPendingProductsByIds(List<String> ids) {
+        List<ObjectId> objectIds = ids.stream().map(ObjectId::new).toList();
 
-    @Override
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("_id").in(objectIds)),
+                Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
+                Aggregation.lookup("genre", "genreId", "_id", "genre"),
+                Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
+                Aggregation.unwind("supplier", true),
+                Aggregation.unwind("genre", true),
+                Aggregation.unwind("storageLocation", true)
+        );
+
+        AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                aggregation, "pendingProduct", ProductResponse.class
+        );
+
+        return results.getMappedResults();
+    }
+
+
     public ProductResponse getPendingProduct(String _id) {
         try {
+            ObjectId objectId;
+            try {
+                objectId = new ObjectId(_id);
+            } catch (IllegalArgumentException ex) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ID format");
+            }
+
             Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
+                    Aggregation.match(Criteria.where("_id").is(objectId)),
                     Aggregation.lookup("supplier", "supplierId", "_id", "supplier"),
                     Aggregation.lookup("genre", "genreId", "_id", "genre"),
                     Aggregation.lookup("storageLocation", "storageLocationId", "_id", "storageLocation"),
                     Aggregation.unwind("supplier", true),
-                    Aggregation.unwind("storageLocation", true),
-                    Aggregation.unwind("genre", true)
+                    Aggregation.unwind("genre", true),
+                    Aggregation.unwind("storageLocation", true)
             );
-            AggregationResults<ProductResponse> result = mongoTemplate.aggregate(
-                    aggregation, "pendingProduct", ProductResponse.class);
-            return result.getUniqueMappedResult();
+
+            AggregationResults<ProductResponse> results = mongoTemplate.aggregate(
+                    aggregation, "pendingProduct", ProductResponse.class
+            );
+
+            ProductResponse response = results.getUniqueMappedResult();
+            if (response == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pending product not found");
+            }
+
+            return response;
+
+        } catch (ResponseStatusException ex) {
+            throw ex;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting product", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Error getting pending product", e
+            );
         }
     }
+
 
     @Override
     public List<ProductResponse> getAllProducts() {
@@ -392,6 +443,33 @@ public class ProductService  implements IProductService {
     public List<StorageLocationSummary> getStockSummaryByLocation() {
         return productRepository.getStockSummaryByLocation();
     }
+
+
+    public ProductByStorageResponse getProductsByStorageLocation(String storageLocationId) {
+        List<Product> products = productRepository.findByStorageLocationId(String.valueOf(storageLocationId));
+
+        List<ProductResponse> responses = products.stream().map(product -> {
+            ProductResponse dto = new ProductResponse();
+            dto.setId(product.get_id());
+            dto.setProductName(product.getProductName());
+            dto.setGenre(genreRepository.findById(String.valueOf(product.getGenreId())).orElse(null));
+            dto.setQuantity(product.getQuantity());
+            dto.setDescription(product.getDescription());
+            dto.setImportPrice(product.getImportPrice());
+            dto.setSellingPrice(product.getSellingPrice());
+            dto.setSupplier(supplierRepository.findById(String.valueOf(product.getSupplierId())).orElse(null));
+            dto.setInStock(product.isInStock());
+            dto.setStorageLocation(storageLocationRepository.findById(String.valueOf(product.getStorageLocationId())).orElse(null));
+            dto.setLastUpdated(product.getLastUpdated());
+            dto.setImage(product.getImage());
+            return dto;
+        }).toList();
+
+        return new ProductByStorageResponse(storageLocationId, responses);
+    }
+
+
+
 }
 
 

@@ -6,6 +6,7 @@ import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.repository.ImportPackageRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.PendingProductRepos;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
+import com.WarehouseAPI.WarehouseAPI.repository.UserRepository;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IImportPackage;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,10 @@ public class ImportPackageService implements IImportPackage {
     private NotificationService notificationService;
     private final PendingProductRepos pendingProductRepository;
     private ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+
+    @Autowired
+    private UserRepository userRepository;
 
     public ImportPackageService(ImportPackageRepos importPackageRepos, MongoTemplate mongoTemplate, ProductService productService, ProductRepository productRepository, NotificationService notificationService, PendingProductRepos pendingProductRepository) {
         this.importPackageRepos = importPackageRepos;
@@ -312,31 +317,46 @@ public class ImportPackageService implements IImportPackage {
         }
     }
 
-    @Override
     public ImportPackageResponse getPendingImportPackage(String _id) {
         try {
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(Criteria.where("_id").is(new ObjectId(_id))),
-                    Aggregation.lookup("user", "idReceiver", "_id", "receiver"),
-                    Aggregation.lookup("pendingProduct", "listProducts", "_id", "listProducts"),
-                    Aggregation.unwind("receiver", true)
+            ObjectId objectId = new ObjectId(_id);
 
+            // Truy vấn ImportPackage với receiver (không join listProducts tại đây)
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("_id").is(objectId)),
+                    Aggregation.lookup("user", "idReceiver", "_id", "receiver"),
+                    Aggregation.unwind("receiver", true)
             );
+
             AggregationResults<ImportPackageResponse> result = mongoTemplate.aggregate(
-                    aggregation, "importPackage", ImportPackageResponse.class);
+                    aggregation, "importPackage", ImportPackageResponse.class
+            );
 
             ImportPackageResponse importPackage = result.getUniqueMappedResult();
-            List<ProductResponse> listProducts = new ArrayList<>();
-            for (ProductResponse product : importPackage.getListProducts()) {
-                System.out.println(product);
-                listProducts.add(productService.getPendingProduct(product.getId()));
+            if (importPackage == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Import package not found");
             }
-            importPackage.setListProducts(listProducts);
+
+            // Tối ưu: Lấy danh sách ID sản phẩm từ importPackage, rồi truy vấn 1 lần
+            List<String> productIds = importPackage.getListProducts()
+                    .stream().map(ProductResponse::getId).toList();
+
+            // Gọi service để lấy toàn bộ sản phẩm trong 1 lần truy vấn
+            List<ProductResponse> fullProducts = productService.getPendingProductsByIds(productIds);
+
+            importPackage.setListProducts(fullProducts);
             return importPackage;
+
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Error getting import packages", e
+            );
         }
     }
+
+
 
     @Override
     public List<ImportPackageResponse> getAllImportPackages() {

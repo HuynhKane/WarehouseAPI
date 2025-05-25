@@ -68,6 +68,9 @@ dependencies {
 	// https://mvnrepository.com/artifact/dev.langchain4j/langchain4j
 	implementation("dev.langchain4j:langchain4j:0.24.0")
 
+	// https://mvnrepository.com/artifact/org.mapstruct/mapstruct
+	implementation("org.mapstruct:mapstruct:1.6.3")
+
 
 
 }

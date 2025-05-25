@@ -6,10 +6,12 @@ import com.WarehouseAPI.WarehouseAPI.service.StatisticService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 
 import org.springframework.data.util.Pair;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +85,22 @@ public class StatisticController {
     public List<MonthlyRevenue> getMonthlyRevenue(@PathVariable int year) {
         return statisticService.getMonthlyRevenueByYear(year);
     }
+    @GetMapping("/monthly-cost/{year}/total")
+    public ResponseEntity<Map<String, Object>> getYearlyCost(@PathVariable int year) {
+        Double totalRevenue = statisticService.getYearlyCost(year);
+        Map<String, Object> response = new HashMap<>();
+        response.put("year", year);
+        response.put("totalCost", totalRevenue);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/monthly-revenue/{year}/total")
+    public ResponseEntity<Map<String, Object>> getYearlyRevenue(@PathVariable int year) {
+        Double totalRevenue = statisticService.getYearlyRevenue(year);
+        Map<String, Object> response = new HashMap<>();
+        response.put("year", year);
+        response.put("totalRevenue", totalRevenue);
+        return ResponseEntity.ok(response);
+    }
 
     // 2️⃣ API lấy danh sách ExportPackage theo tháng
     @GetMapping("/monthly-revenue/{year}/{month}")
@@ -99,6 +117,10 @@ public class StatisticController {
         return statisticService.getImportPackagesByMonth(year,month);
     }
 
-
+    @GetMapping("/finance/{year}")
+    public ResponseEntity<YearlyFinance> getFinanceComparison(@PathVariable int year) {
+        YearlyFinance result = statisticService.getRevenueVsCost(year);
+        return ResponseEntity.ok(result);
+    }
 
 }

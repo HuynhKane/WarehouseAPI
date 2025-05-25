@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.service.interfaces;
 
+import com.WarehouseAPI.WarehouseAPI.dto.ProductByStorageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
 import org.springframework.http.ResponseEntity;
@@ -24,4 +25,5 @@ public interface IProductService {
     public List<ProductResponse> getProductsByLastUpdatedDateRange(String startDay, String endDay);
     public List<ProductResponse> getProductsByMonth(int year, int month);
     public List<StorageLocationSummary> getStockSummaryByLocation();
+    public ProductByStorageResponse getProductsByStorageLocation(String storageLocationId);
 }

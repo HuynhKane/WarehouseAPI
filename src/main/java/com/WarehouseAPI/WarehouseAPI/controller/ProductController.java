@@ -1,5 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
+import com.WarehouseAPI.WarehouseAPI.dto.ProductByStorageResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IProductService;
 import org.springframework.http.HttpStatus;
@@ -106,4 +107,13 @@ public class ProductController {
         productService.deleteProduct(id);
         return "Product deleted successfully";
     }
+
+
+    @GetMapping("/storage/{storageLocationId}")
+    public ResponseEntity<ProductByStorageResponse> getProductsByStorage(
+            @PathVariable String storageLocationId) {
+        ProductByStorageResponse response = productService.getProductsByStorageLocation(storageLocationId);
+        return ResponseEntity.ok(response);
+    }
+
 }
