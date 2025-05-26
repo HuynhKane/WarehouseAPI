@@ -3,6 +3,7 @@ package com.WarehouseAPI.WarehouseAPI.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -10,7 +11,7 @@ import java.util.Map;
 @Setter
 public class YearlyFinance {
     private int year;
-    private Map<Integer, MonthlyFinance> months;
+    private List<MonthlyFinance> months;
 
     // getters & setters
 }

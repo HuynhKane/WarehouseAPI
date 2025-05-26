@@ -10,5 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductByStorageResponse {
     private String storageLocationId;
+    private String storageName;
+    private String storageImage;
     private List<ProductResponse> listProduct;
 }

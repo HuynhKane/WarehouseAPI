@@ -8,4 +8,5 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 
 public interface StorageLocationRepository extends MongoRepository<StorageLocation, String> {
+
 }

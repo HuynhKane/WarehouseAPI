@@ -47,4 +47,15 @@ public class Supplier {
     public void setRatings(int ratings) {
         this.ratings = ratings;
     }
+
+    @Override
+    public String toString() {
+        return "Supplier{" +
+                "_id='" + _id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", address=" + address +
+                ", ratings=" + ratings +
+                '}';
+    }
 }

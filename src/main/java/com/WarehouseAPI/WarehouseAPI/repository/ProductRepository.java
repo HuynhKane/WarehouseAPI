@@ -21,11 +21,8 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     List<Product> findProductByGenreId(String genreId);
     List<Product> findByProductName(String productName);
     List<Product> findByProductNameContainingIgnoreCase(String value);
-    List<Product> findByStorageLocationId(String storageLocationId);
     List<Product> findByIsInStock(Boolean isInStock);
     List<Product> findBySupplierId(String supplierId);
-
-
     @Aggregation(pipeline = {
             "{ '$match': { 'isInStock': true } }",
             "{ '$group': { '_id': '$storageLocationId', 'totalQuantity': { '$sum': '$quantity' } } }",
@@ -36,7 +33,7 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     List<StorageLocationSummary> getStockSummaryByLocation();
     long countBy_idIn(List<String> ids);
     List<Product> findByQuantityLessThan(int quantity);
-    List<Product> findByStorageLocationId(Long storageLocationId);
+    List<Product> findByStorageLocationId(Object storageLocationId);
 
 
 

@@ -110,4 +110,20 @@ public class ExportPackage {
     public void setListProducts(List<ProductWithQuantity> listProducts) {
         this.listProducts = listProducts;
     }
+
+    @Override
+    public String toString() {
+        return "ExportPackage{" +
+                "id='" + id + '\'' +
+                ", packageName='" + packageName + '\'' +
+                ", exportDate=" + exportDate +
+                ", deliveryMethod='" + deliveryMethod + '\'' +
+                ", idSender=" + idSender +
+                ", customerId=" + customerId +
+                ", statusDone='" + statusDone + '\'' +
+                ", note='" + note + '\'' +
+                ", listProducts=" + listProducts +
+                ", totalSellingPrice=" + totalSellingPrice +
+                '}';
+    }
 }

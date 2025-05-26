@@ -16,7 +16,7 @@ public class FaissService {
                 "vectors", vectors,
                 "ids", ids
         );
-        restTemplate.postForEntity("http://192.168.1.233:8000/index", payload, String.class);
+        restTemplate.postForEntity("http://localhost:8000/index", payload, String.class);
     }
 
     public List<String> search(List<Double> queryVec, int topK) {
@@ -24,7 +24,7 @@ public class FaissService {
                 "query", List.of(queryVec),
                 "top_k", topK
         );
-        ResponseEntity<List> res = restTemplate.postForEntity("http://192.168.1.233:8000/search", payload, List.class);
+        ResponseEntity<List> res = restTemplate.postForEntity("http://localhost:8000/search", payload, List.class);
         return res.getBody();
     }
 }

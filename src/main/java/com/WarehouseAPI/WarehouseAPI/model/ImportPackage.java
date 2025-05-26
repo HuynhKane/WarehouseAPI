@@ -77,4 +77,16 @@ public class ImportPackage {
         this.idReceiver = idReceiver;
     }
 
+    @Override
+    public String toString() {
+        return "ImportPackage{" +
+                "id='" + id + '\'' +
+                ", packageName='" + packageName + '\'' +
+                ", importDate=" + importDate +
+                ", idReceiver=" + idReceiver +
+                ", statusDone='" + statusDone + '\'' +
+                ", note='" + note + '\'' +
+                ", listProducts=" + listProducts +
+                '}';
+    }
 }

@@ -5,6 +5,7 @@ import com.WarehouseAPI.WarehouseAPI.model.Notification;
 import com.WarehouseAPI.WarehouseAPI.model.Product;
 import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.dto.StorageLocationSummary;
+import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
 import com.WarehouseAPI.WarehouseAPI.repository.GenreRepository;
 import com.WarehouseAPI.WarehouseAPI.repository.ProductRepository;
 import com.WarehouseAPI.WarehouseAPI.repository.StorageLocationRepository;
@@ -446,8 +447,8 @@ public class ProductService  implements IProductService {
 
 
     public ProductByStorageResponse getProductsByStorageLocation(String storageLocationId) {
-        List<Product> products = productRepository.findByStorageLocationId(String.valueOf(storageLocationId));
-
+        List<Product> products = productRepository.findByStorageLocationId(new ObjectId(storageLocationId));
+        StorageLocation storageLocation = storageLocationRepository.findById(storageLocationId).orElse(null);
         List<ProductResponse> responses = products.stream().map(product -> {
             ProductResponse dto = new ProductResponse();
             dto.setId(product.get_id());
@@ -465,7 +466,7 @@ public class ProductService  implements IProductService {
             return dto;
         }).toList();
 
-        return new ProductByStorageResponse(storageLocationId, responses);
+        return new ProductByStorageResponse(storageLocationId, storageLocation.getStorageLocationName(), storageLocation.getStorageLocationImage(), responses);
     }
 
 

@@ -295,7 +295,7 @@ public class StatisticService implements IStatisticService {
         List<MonthlyCost> costs = getMonthlyCostByYear(year);
         List<MonthlyRevenue> revenues = getMonthlyRevenueByYear(year);
 
-        Map<Integer, MonthlyFinance> months = new HashMap<>();
+        List< MonthlyFinance> months = new ArrayList<>();
         for (int i = 1; i <= 12; i++) {
             BigDecimal cost = costs.get(i - 1).getTotalCost();
             BigDecimal revenue = revenues.get(i - 1).getTotalRevenue();
@@ -305,7 +305,7 @@ public class StatisticService implements IStatisticService {
             mf.setRevenue(revenue);
             mf.setProfit(revenue.compareTo(cost) >= 0);
 
-            months.put(i, mf);
+            months.add(mf);
         }
 
         YearlyFinance response = new YearlyFinance();
@@ -313,7 +313,4 @@ public class StatisticService implements IStatisticService {
         response.setMonths(months);
         return response;
     }
-
-
-
 }
