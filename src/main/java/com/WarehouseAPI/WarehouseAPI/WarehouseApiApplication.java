@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 		info = @Info(
 				title = "Warehouse Management",
 				version = "1.0",
-				description = "API for My Application"
+					description = "API for My Application"
 		)
 )
 @SpringBootApplication
