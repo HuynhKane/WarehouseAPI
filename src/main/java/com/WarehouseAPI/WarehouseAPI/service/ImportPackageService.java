@@ -377,7 +377,7 @@ public class ImportPackageService implements IImportPackage {
             for(ImportPackageResponse importPackageResponse: importPackages){
                 if(Objects.equals(importPackageResponse.getStatusDone(), "PENDING")){
 
-                    pendingPackages.add(getPendingImportPackage(importPackageResponse.getId()));
+                    pendingPackages.add(importPackageResponse);
                 }
             }
             return pendingPackages;

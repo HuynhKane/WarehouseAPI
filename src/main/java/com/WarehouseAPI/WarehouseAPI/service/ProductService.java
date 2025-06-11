@@ -165,16 +165,16 @@ public class ProductService  implements IProductService {
                     aggregation, "product", ProductResponse.class);
 
 
-            Product product = productRepository.findById(_id).get();
-            List<Double> embedding = embeddingService.getEmbedding(product.toString());
+           // Product product = productRepository.findById(_id).get();
+            //List<Double> embedding = embeddingService.getEmbedding(product.toString());
 
             // Ghi lại embedding
-            Query query = new Query(Criteria.where("_id").is(product.get_id()));
-            Update update = new Update()
-                    .set("embedding", embedding)
-                    .set("lastEmbeddingUpdate", new Date());
-
-            mongoTemplate.updateFirst(query, update, Product.class);
+//            Query query = new Query(Criteria.where("_id").is(product.get_id()));
+//                Update update = new Update()
+//                       // .set("embedding", embedding)
+//                        .set("lastEmbeddingUpdate", new Date());
+//
+//            mongoTemplate.updateFirst(query, update, Product.class);
 
 
 
