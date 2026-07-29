@@ -1,13 +1,15 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
+import com.WarehouseAPI.WarehouseAPI.dto.LoginRequest;
 import com.WarehouseAPI.WarehouseAPI.model.User;
 import com.WarehouseAPI.WarehouseAPI.security.JwtUtils;
 import com.WarehouseAPI.WarehouseAPI.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -31,19 +33,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestParam("username") String username, @RequestParam("password") String password) {
-        User user = userService.getUserByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPasswordHash())) {
-            String token = jwtUtils.generateToken(username);
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
-            response.put("id", user.get_id().toString());
-            response.put("role", user.getInformation().getRole().toString());
-
-            return response;
-        } else {
-            throw new RuntimeException("Invalid username or password");
+    public Map<String, String> login(@RequestBody LoginRequest request) {
+        User user = userService.getUserByUsername(request.username());
+        if (user == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
+
+        return Map.of(
+                "token", jwtUtils.generateToken(user.getUsername()),
+                "id", user.get_id(),
+                "role", user.getInformation().getRole()
+        );
     }
 
     @GetMapping("/logout")
@@ -52,4 +52,3 @@ public class AuthController {
         return "Logged out successfully!";
     }
 }
-

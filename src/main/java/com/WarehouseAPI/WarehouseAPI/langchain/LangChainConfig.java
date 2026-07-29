@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class LangChainConfig {
-    @Value("${openai.api.key}")
+    @Value("${openai.api-key}")
     private String openAiApiKey;
 
     @Bean

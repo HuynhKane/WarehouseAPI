@@ -47,21 +47,22 @@ Application settings live in
 ```properties
 spring.application.name=WarehouseAPI
 server.port=8081
-spring.data.mongodb.uri=mongodb://localhost:27017/warehouse
-openai.api.key=your-openai-api-key
-openai.api-key=your-openai-api-key
+spring.data.mongodb.uri=${SPRING_DATA_MONGODB_URI}
+openai.api-key=${OPENAI_API_KEY}
+security.jwt.secret=${JWT_SECRET}
 ```
 
-Both OpenAI property spellings are currently used by the codebase. Keep secrets
-out of version control; for local development, environment variables can
-override Spring properties:
+Keep secrets out of version control and provide them through environment
+variables:
 
 ```bash
 export SPRING_DATA_MONGODB_URI='mongodb://localhost:27017/warehouse'
 export OPENAI_API_KEY='your-openai-api-key'
+export JWT_SECRET="$(openssl rand -base64 64)"
 ```
 
-Spring maps `OPENAI_API_KEY` to the OpenAI property used by the application.
+Copy `.env.example` as a reference for all supported variables. Do not commit a
+populated `.env` file.
 
 ## Run locally
 
@@ -127,8 +128,9 @@ curl -X POST http://localhost:8081/auth/register \
 Log in:
 
 ```bash
-curl -X POST \
-  'http://localhost:8081/auth/login?username=admin&password=change-me'
+curl -X POST http://localhost:8081/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"change-me"}'
 ```
 
 A successful login returns the JWT, user ID, and role. Send the token to
@@ -138,9 +140,8 @@ protected endpoints as:
 Authorization: Bearer <token>
 ```
 
-> Note: the current security configuration permits all HTTP routes. The JWT
-> filter is installed, but route authorization must be tightened before relying
-> on it in production.
+All API routes except registration, login, Swagger documentation, static demo
+assets, and the WebSocket handshake require this bearer token.
 
 ### RAG example
 
@@ -197,6 +198,7 @@ docker build -t warehouse-api .
 docker run --rm -p 8081:8081 \
   -e SPRING_DATA_MONGODB_URI='mongodb://host.docker.internal:27017/warehouse' \
   -e OPENAI_API_KEY='your-openai-api-key' \
+  -e JWT_SECRET='your-base64-encoded-jwt-secret' \
   warehouse-api
 ```
 
