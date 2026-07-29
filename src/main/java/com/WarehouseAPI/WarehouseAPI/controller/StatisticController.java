@@ -21,13 +21,11 @@ public class StatisticController {
 
     private final IProductService productService;
     private final StatisticService statisticService;
-    private final ExportPackageService exportPackageService;
 
 
     public StatisticController(IProductService productService, StatisticService statisticService, ExportPackageService exportPackageService) {
         this.productService = productService;
         this.statisticService = statisticService;
-        this.exportPackageService = exportPackageService;
     }
 
     @GetMapping("/in-stock")

@@ -1,8 +1,6 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.model.StorageLocation;
-import com.WarehouseAPI.WarehouseAPI.model.Supplier;
 import com.WarehouseAPI.WarehouseAPI.service.ProductService;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.IStorageLocService;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +13,9 @@ import java.util.List;
 public class StorageLocationController {
 
     private final IStorageLocService storageLocService;
-    private final ProductService productService;
 
     public StorageLocationController(IStorageLocService storageLocService, ProductService productService) {
         this.storageLocService = storageLocService;
-        this.productService = productService;
     }
 
     @GetMapping

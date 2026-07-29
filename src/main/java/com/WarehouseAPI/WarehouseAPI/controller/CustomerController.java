@@ -1,6 +1,5 @@
 package com.WarehouseAPI.WarehouseAPI.controller;
 
-import com.WarehouseAPI.WarehouseAPI.dto.ProductResponse;
 import com.WarehouseAPI.WarehouseAPI.model.Customer;
 import com.WarehouseAPI.WarehouseAPI.service.interfaces.ICustomerService;
 import org.springframework.web.bind.annotation.*;

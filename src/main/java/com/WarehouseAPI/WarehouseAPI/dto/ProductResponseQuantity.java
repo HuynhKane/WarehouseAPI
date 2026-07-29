@@ -1,6 +1,5 @@
 package com.WarehouseAPI.WarehouseAPI.dto;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class ProductResponseQuantity {
